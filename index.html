@@ -1,234 +1,471 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>CRE Tool Hub — Calculators</title>
-<meta name="description" content="Cap Rate, NOI Builder, Cash-on-Cash and DSCR calculators. Client-side, privacy-friendly, fast." />
-<style>
-:root{--accent:#1f6feb;--muted:#6b7280;--bg:#ffffff}
-*{box-sizing:border-box}
-html,body{height:100%;margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background:var(--bg);color:#0b1220}
-.header{padding:18px;text-align:center;border-bottom:1px solid #eef2f6}
-.header h1{margin:0;font-size:1.6rem;color:var(--accent)}
-.header p{margin:6px 0 0;color:var(--muted);font-size:0.95rem}
-.container{max-width:920px;margin:18px auto;padding:18px}
-.tab-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:20px;padding:10px 0}
-.tab{background:#e8edf5;border:2px solid #c5d0e0;padding:10px 16px;border-radius:10px;cursor:pointer;font-weight:600;color:#4a5568;font-size:15px;transition:all 0.2s ease}
-.tab:hover{background:#d5e1f0;border-color:#9fb3cc}
-.tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
-.card{background:#fff;border-radius:12px;padding:20px;margin:16px 0;border:1px solid #f1f5f9;box-shadow:0 1px 3px rgba(0,0,0,0.05)}
-.input-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}
-.field{flex:1;min-width:150px}
-label{font-size:13px;color:var(--muted);display:block;margin-bottom:6px;font-weight:500}
-input[type=number]{width:100%;padding:10px;border-radius:8px;border:1px solid #e6ecf8;font-size:15px}
-.result{font-size:32px;font-weight:700;margin-top:10px;color:var(--accent)}
-.explainer{font-size:13px;color:var(--muted);margin-top:8px;line-height:1.5}
-.controls{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
-.btn{padding:9px 14px;border-radius:8px;border:0;cursor:pointer;background:#eef6ff;color:var(--accent);font-weight:600;font-size:14px;transition:all 0.2s ease}
-.btn:hover{background:#dce9ff}
-.btn.secondary{background:#f3f4f6;color:var(--muted)}
-.btn.secondary:hover{background:#e5e7eb}
-.small{font-size:13px;color:var(--muted)}
-.aff-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}
-.aff-card{flex:1;min-width:200px;padding:16px;border-radius:8px;background:#fbfcfe;border:1px solid #eef3ff;text-align:center}
-.aff-card strong{display:block;margin-bottom:4px;font-size:15px}
-.ad{width:300px;height:250px;margin:20px auto;border:1px dashed #e6edf3;display:flex;align-items:center;justify-content:center;color:var(--muted);background:#fafbfc}
-.footer{font-size:13px;color:var(--muted);text-align:center;margin:30px 0;padding:20px 0;border-top:1px solid #eef2f6}
-.pro{margin-top:12px;padding:12px;border-radius:8px;background:#fcfeff;border:1px solid #eef6ff}
-.section-title{font-size:18px;font-weight:700;margin:30px 0 10px;color:#0b1220}
-@media(max-width:640px){
-  .result{font-size:26px}
-  .input-row{flex-direction:column}
-  .aff-row{flex-direction:column}
-  .ad{width:100%;height:140px}
-  .tab-row{gap:6px}
-  .tab{padding:8px 12px;font-size:14px}
-}
-</style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CRE Tool Hub</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Custom Styles -->
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      }
+    </style>
+
+    <!-- React & Babel CDNs for in-browser transpilation -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<link rel="stylesheet" href="/index.css">
 </head>
-<body>
-<header class="header">
-  <h1>CRE Tool Hub</h1>
-  <p>Fast CRE calculators — client-side, no storage</p>
-</header>
-<main class="container">
-  <div class="tab-row" role="tablist">
-    <button class="tab active" data-tool="cap">Cap Rate</button>
-    <button class="tab" data-tool="noi">NOI Builder</button>
-    <button class="tab" data-tool="coc">Cash-on-Cash</button>
-    <button class="tab" data-tool="dscr">DSCR</button>
-  </div>
+<body class="bg-white">
+    <div id="root"></div>
 
-  <div id="tool-area">
-    <!-- Cap Rate -->
-    <section class="card" id="cap-tool" data-tool="cap">
-      <label>Net Operating Income (NOI) — annual $</label>
-      <div class="input-row">
-        <div class="field"><input id="cap-noi" type="number" placeholder="e.g., 75000" /></div>
-        <div class="field"><input id="cap-price" type="number" placeholder="Property value e.g. 1000000" /></div>
-      </div>
-      <div class="result" id="cap-result">—</div>
-      <div class="explainer" id="cap-explain"> </div>
+    <script type="text/babel">
+      const { useState, useMemo } = React;
 
-      <div class="controls">
-        <button id="share-cap" class="btn">Share this calculation</button>
-        <button id="cap-pro-toggle" class="btn secondary">Show formula & sensitivity</button>
-      </div>
+      // --- From types.ts ---
+      const Tool = {
+        CapRate: 'Cap Rate',
+        NOI: 'NOI Builder',
+        CoC: 'Cash-on-Cash',
+        DSCR: 'DSCR',
+      };
 
-      <div id="cap-pro" class="pro" style="display:none;">
-        <div class="small"><strong>Formula:</strong> Cap Rate = (NOI ÷ Price) × 100</div>
-        <div id="cap-sensitivity" class="small" style="margin-top:8px">Sensitivity: —</div>
-        <div class="small" style="margin-top:8px">Note: Cap rate does not include financing, taxes, or future market changes.</div>
-      </div>
-    </section>
+      // --- From components/AccordionItem.tsx ---
+      const AccordionItem = ({ question, answer }) => {
+        const [isOpen, setIsOpen] = useState(false);
 
-    <!-- NOI Builder -->
-    <section class="card" id="noi-tool" data-tool="noi" style="display:none;">
-      <label>Gross Rental Income — annual $</label>
-      <input id="noi-gross" type="number" placeholder="e.g., 120000" />
-      <label style="margin-top:10px">Operating Expenses — annual $</label>
-      <input id="noi-exp" type="number" placeholder="e.g., 35000" />
-      <div class="result" id="noi-result">—</div>
-      <div class="explainer" id="noi-explain"> </div>
-      <div class="controls">
-        <button id="share-noi" class="btn">Share this calculation</button>
-        <button id="noi-pro-toggle" class="btn secondary">Show formula & sensitivity</button>
-      </div>
-      <div id="noi-pro" class="pro" style="display:none;">
-        <div class="small"><strong>Formula:</strong> NOI = Gross Income − Operating Expenses</div>
-        <div id="noi-sensitivity" class="small" style="margin-top:8px">Sensitivity: —</div>
-      </div>
-    </section>
+        return (
+          <div className="py-4">
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="w-full flex justify-between items-center text-left text-gray-800 focus:outline-none"
+            >
+              <span className="font-semibold">{question}</span>
+              <svg
+                className={`w-5 h-5 transform transition-transform duration-200 ${
+                  isOpen ? 'rotate-180' : 'rotate-0'
+                }`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+            {isOpen && (
+              <div className="mt-3 text-gray-600">
+                <p>{answer}</p>
+              </div>
+            )}
+          </div>
+        );
+      };
 
-    <!-- Cash-on-Cash -->
-    <section class="card" id="coc-tool" data-tool="coc" style="display:none;">
-      <label>Annual Pre-Tax Cash Flow ($)</label>
-      <input id="coc-cash" type="number" placeholder="e.g., 15000" />
-      <label style="margin-top:10px">Total Cash Invested ($)</label>
-      <input id="coc-invest" type="number" placeholder="e.g., 200000" />
-      <div class="result" id="coc-result">—</div>
-      <div class="explainer" id="coc-explain"> </div>
-      <div class="controls">
-        <button id="share-coc" class="btn">Share this calculation</button>
-        <button id="coc-pro-toggle" class="btn secondary">Show formula & sensitivity</button>
-      </div>
-      <div id="coc-pro" class="pro" style="display:none;">
-        <div class="small"><strong>Formula:</strong> CoC % = (Annual Pre-Tax Cash Flow ÷ Total Cash Invested) × 100</div>
-        <div id="coc-sensitivity" class="small" style="margin-top:8px">Sensitivity: —</div>
-      </div>
-    </section>
+      // --- From components/SeoFaqContent.tsx ---
+      const SeoFaqContent = () => {
+        const article = "A capitalization rate, or cap rate, measures the expected rate of return on an income-producing property relative to its purchase price. Cap Rate (%) = Net Operating Income ÷ Property Value × 100. Cap rate varies by property type, location, and market conditions. CREToolHub provides four client-side calculators: Cap Rate, NOI Builder, Cash-on-Cash, and DSCR. Investors use these tools to quickly evaluate property profitability, compare options, and make informed decisions without storing personal data.";
+        
+        const faqs = [
+          { question: "What is a good cap rate?", answer: "Depends on property type; 5–10% is common for stable urban properties." },
+          { question: "Can cap rate predict future returns?", answer: "No, it reflects current income, not future appreciation or expenses." },
+          { question: "How do I calculate NOI?", answer: "NOI = Gross rental income − operating expenses (excluding debt and taxes)." },
+          { question: "Should I use cap rate alone?", answer: "No, combine with Cash-on-Cash Return, DSCR, and other metrics." },
+          { question: "Does CREToolHub store my inputs?", answer: "No, all calculators run client-side; no data is saved." }
+        ];
 
-    <!-- DSCR -->
-    <section class="card" id="dscr-tool" data-tool="dscr" style="display:none;">
-      <label>Net Operating Income (NOI) — annual $</label>
-      <input id="dscr-noi" type="number" placeholder="e.g., 75000" />
-      <label style="margin-top:10px">Annual Debt Service ($)</label>
-      <input id="dscr-debt" type="number" placeholder="e.g., 60000" />
-      <div class="result" id="dscr-result">—</div>
-      <div class="explainer" id="dscr-explain"> </div>
-      <div class="controls">
-        <button id="share-dscr" class="btn">Share this calculation</button>
-        <button id="dscr-pro-toggle" class="btn secondary">Show formula & sensitivity</button>
-      </div>
-      <div id="dscr-pro" class="pro" style="display:none;">
-        <div class="small"><strong>Formula:</strong> DSCR = NOI ÷ Annual Debt Service</div>
-        <div id="dscr-sensitivity" class="small" style="margin-top:8px">Sensitivity: —</div>
-      </div>
-    </section>
+        return (
+          <section className="space-y-10">
+            <div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">What is Cap Rate?</h3>
+              <div className="prose max-w-none text-gray-600">
+                <p>{article}</p>
+              </div>
+            </div>
+            <div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h3>
+              <div className="space-y-3 border-t border-b border-gray-200 divide-y divide-gray-200">
+                {faqs.map((faq, index) => (
+                  <AccordionItem key={index} question={faq.question} answer={faq.answer} />
+                ))}
+              </div>
+            </div>
+          </section>
+        );
+      };
 
-    <div class="aff-row">
-      <div class="aff-card"><strong>Compare lenders</strong><div class="small">Find competitive CRE loans</div></div>
-      <div class="aff-card"><strong>Valuation tool</strong><div class="small">Try property valuation software</div></div>
-      <div class="aff-card"><strong>Accounting trial</strong><div class="small">Free trial for CRE accounting</div></div>
-    </div>
+      // --- From components/AffiliateCard.tsx ---
+      const AffiliateCard = ({ title, description, cta }) => {
+        return (
+          <div className="border border-gray-200 rounded-lg p-4 flex flex-col md:flex-row justify-between items-center space-y-3 md:space-y-0 md:space-x-4">
+            <div className="text-center md:text-left">
+              <h4 className="font-semibold text-gray-800">{title}</h4>
+              <p className="text-sm text-gray-500">{description}</p>
+            </div>
+            <button className="bg-blue-600 text-white hover:bg-blue-700 text-sm font-semibold py-2 px-4 rounded-md transition-colors w-full md:w-auto flex-shrink-0">
+              {cta}
+            </button>
+          </div>
+        );
+      };
 
-    <div class="ad" id="ad-slot">Ad placeholder (300×250)</div>
+      // --- From components/AdPlaceholder.tsx ---
+      const AdPlaceholder = () => {
+        return (
+          <div className="w-[300px] h-[250px] bg-gray-200 flex items-center justify-center mx-auto rounded-md">
+            <span className="text-gray-500">AdSense 300×250</span>
+          </div>
+        );
+      };
 
-    <div class="card small">
-      <h3 class="section-title">What is Cap Rate?</h3>
-      <p class="small">A capitalization rate (cap rate) is NOI ÷ Property Value × 100. It measures a property's yield before financing or taxes. Use this with Cash-on-Cash and DSCR for full context.</p>
-    </div>
+      // --- From components/calculators/DscrCalculator.tsx ---
+      const DscrCalculator = () => {
+        const [noi, setNoi] = useState('75000');
+        const [debtService, setDebtService] = useState('60000');
 
-  </div>
+        const dscr = useMemo(() => {
+          const numNoi = parseFloat(noi);
+          const numDebtService = parseFloat(debtService);
+          if (isNaN(numNoi) || isNaN(numDebtService) || numDebtService === 0) {
+            return 0;
+          }
+          return numNoi / numDebtService;
+        }, [noi, debtService]);
 
-  <div class="footer">Not financial advice. Estimates only.</div>
-</main>
+        return (
+          <div className="p-4 md:p-6 bg-gray-50 rounded-lg">
+            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-600">Net Operating Income (NOI)</label>
+                  <input type="number" value={noi} onChange={e => setNoi(e.target.value)} className="mt-1 block w-full rounded-md border-gray-600 bg-gray-800 text-white placeholder-gray-400 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"/>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-600">Total Debt Service</label>
+                  <input type="number" value={debtService} onChange={e => setDebtService(e.target.value)} className="mt-1 block w-full rounded-md border-gray-600 bg-gray-800 text-white placeholder-gray-400 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"/>
+                </div>
+              </div>
+              <div className="mt-4 md:mt-0 md:ml-6 flex flex-col items-center justify-center bg-white p-6 rounded-lg shadow-inner h-full">
+                <span className="text-sm font-medium text-gray-500">DSCR</span>
+                <p className="text-4xl md:text-5xl font-bold text-blue-600 my-1">
+                  {dscr.toFixed(2)}x
+                </p>
+                <p className="text-xs text-gray-400">
+                  Formula: NOI / Debt Service
+                </p>
+              </div>
+            </div>
+          </div>
+        );
+      };
+      
+      // --- From components/calculators/CashOnCashCalculator.tsx ---
+      const CashOnCashCalculator = () => {
+        const [cashFlow, setCashFlow] = useState('15000');
+        const [cashInvested, setCashInvested] = useState('250000');
 
-<script>
-// Simple analytics helper: GA4 event if available + localStorage counter (client-only)
-function trackTab(t){try{if(window.gtag)gtag('event','select_tab',{event_category:'tools',event_label:t});localStorage.setItem('tabClicks_'+t,(parseInt(localStorage.getItem('tabClicks_'+t)||'0')+1));}catch(e){}}
+        const cocReturn = useMemo(() => {
+          const numCashFlow = parseFloat(cashFlow);
+          const numCashInvested = parseFloat(cashInvested);
+          if (isNaN(numCashFlow) || isNaN(numCashInvested) || numCashInvested === 0) {
+            return 0;
+          }
+          return (numCashFlow / numCashInvested) * 100;
+        }, [cashFlow, cashInvested]);
 
-// Tab logic
-const tabButtons=document.querySelectorAll('.tab');
-tabButtons.forEach(btn=>btn.addEventListener('click',()=>{const tool=btn.dataset.tool;activateTool(tool);trackTab(tool);}));
-function activateTool(tool){
-  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tool===tool));
-  document.querySelectorAll('[data-tool]').forEach(s=>s.style.display=(s.dataset.tool===tool||s.id==='tool-area')?'block':'none');
-  // show/hide sections
-  ['cap','noi','coc','dscr'].forEach(id=>{const el=document.getElementById(id+'-tool'); if(el) el.style.display=(id===tool)?'block':'none';});
-}
-// set default
-activateTool(new URLSearchParams(location.search).get('tool')||'cap');
+        return (
+          <div className="p-4 md:p-6 bg-gray-50 rounded-lg">
+            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-600">Annual Pre-Tax Cash Flow</label>
+                  <input type="number" value={cashFlow} onChange={e => setCashFlow(e.target.value)} className="mt-1 block w-full rounded-md border-gray-600 bg-gray-800 text-white placeholder-gray-400 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"/>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-600">Total Cash Invested</label>
+                  <input type="number" value={cashInvested} onChange={e => setCashInvested(e.target.value)} className="mt-1 block w-full rounded-md border-gray-600 bg-gray-800 text-white placeholder-gray-400 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"/>
+                </div>
+              </div>
+              <div className="mt-4 md:mt-0 md:ml-6 flex flex-col items-center justify-center bg-white p-6 rounded-lg shadow-inner h-full">
+                <span className="text-sm font-medium text-gray-500">Cash-on-Cash Return</span>
+                <p className="text-4xl md:text-5xl font-bold text-blue-600 my-1">
+                  {cocReturn.toFixed(2)}%
+                </p>
+                <p className="text-xs text-gray-400">
+                  Formula: Cash Flow / Cash Invested
+                </p>
+              </div>
+            </div>
+          </div>
+        );
+      };
+      
+      // --- From components/calculators/NoiBuilder.tsx ---
+      const NoiBuilder = () => {
+        const [grossRent, setGrossRent] = useState('120000');
+        const [vacancy, setVacancy] = useState('6000');
+        const [otherIncome, setOtherIncome] = useState('5000');
+        const [opEx, setOpEx] = useState('44000');
 
-// Utility: copy to clipboard with fallback
-async function copy(text){try{if(navigator.clipboard) await navigator.clipboard.writeText(text); else{const t=document.createElement('textarea');t.value=text;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);}alert('Link copied to clipboard');}catch(e){alert('Copy failed — try manually: '+text);}}
+        const noi = useMemo(() => {
+          const numGrossRent = parseFloat(grossRent) || 0;
+          const numVacancy = parseFloat(vacancy) || 0;
+          const numOtherIncome = parseFloat(otherIncome) || 0;
+          const numOpEx = parseFloat(opEx) || 0;
+          
+          return numGrossRent - numVacancy + numOtherIncome - numOpEx;
+        }, [grossRent, vacancy, otherIncome, opEx]);
 
-// Build share URL
-function makeShare(params){const u=new URL(window.location.href.split('?')[0]);Object.keys(params).forEach(k=>u.searchParams.set(k,params[k]));return u.toString();}
+        return (
+          <div className="p-4 md:p-6 bg-gray-50 rounded-lg">
+            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-600">Gross Potential Rent</label>
+                  <input type="number" value={grossRent} onChange={e => setGrossRent(e.target.value)} className="mt-1 block w-full rounded-md border-gray-600 bg-gray-800 text-white placeholder-gray-400 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"/>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-600">Vacancy Loss (-)</label>
+                  <input type="number" value={vacancy} onChange={e => setVacancy(e.target.value)} className="mt-1 block w-full rounded-md border-gray-600 bg-gray-800 text-white placeholder-gray-400 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"/>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-600">Other Income (+)</label>
+                  <input type="number" value={otherIncome} onChange={e => setOtherIncome(e.target.value)} className="mt-1 block w-full rounded-md border-gray-600 bg-gray-800 text-white placeholder-gray-400 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"/>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-600">Operating Expenses (-)</label>
+                  <input type="number" value={opEx} onChange={e => setOpEx(e.target.value)} className="mt-1 block w-full rounded-md border-gray-600 bg-gray-800 text-white placeholder-gray-400 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"/>
+                </div>
+              </div>
+              <div className="mt-4 md:mt-0 md:ml-6 flex flex-col items-center justify-center bg-white p-6 rounded-lg shadow-inner h-full">
+                <span className="text-sm font-medium text-gray-500">Net Operating Income (NOI)</span>
+                <p className="text-4xl md:text-5xl font-bold text-blue-600 my-1">
+                  {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(noi)}
+                </p>
+                <p className="text-xs text-gray-400">
+                  Formula: (GPR - Vacancy + Other) - OpEx
+                </p>
+              </div>
+            </div>
+          </div>
+        );
+      };
 
-// Parse & prefill from URL
-(function prefillFromUrl(){const qs=new URLSearchParams(location.search);const tool=qs.get('tool');if(tool){if(tool==='cap'){document.getElementById('cap-noi').value=qs.get('noi')||'';document.getElementById('cap-price').value=qs.get('price')||'';calcCap();activateTool('cap');}
- if(tool==='noi'){document.getElementById('noi-gross').value=qs.get('gross')||'';document.getElementById('noi-exp').value=qs.get('exp')||'';calcNOI();activateTool('noi');}
- if(tool==='coc'){document.getElementById('coc-cash').value=qs.get('cash')||'';document.getElementById('coc-invest').value=qs.get('invest')||'';calcCoC();activateTool('coc');}
- if(tool==='dscr'){document.getElementById('dscr-noi').value=qs.get('noi')||'';document.getElementById('dscr-debt').value=qs.get('debt')||'';calcDSCR();activateTool('dscr');}}
-})();
+      // --- From components/calculators/CapRateCalculator.tsx ---
+      const CapRateCalculator = ({ setActiveTool }) => {
+        const [noi, setNoi] = useState('75000');
+        const [price, setPrice] = useState('1000000');
+        const [showAdvanced, setShowAdvanced] = useState(false);
 
-// Cap Rate
-const capNOI=document.getElementById('cap-noi'),capPrice=document.getElementById('cap-price'),capRes=document.getElementById('cap-result'),capExplain=document.getElementById('cap-explain');
-function calcCap(){const n=parseFloat(capNOI.value)||0,p=parseFloat(capPrice.value)||0;if(p>0){const v=(n/p)*100;capRes.textContent=v.toFixed(2)+' %';capExplain.textContent=`A ${v.toFixed(2)}% cap rate suggests moderate risk — compare to local market averages.`;updateCapPro(n,p);}else{capRes.textContent='—';capExplain.textContent='Enter NOI and property value to compute cap rate.';}}
-capNOI.addEventListener('input',calcCap);capPrice.addEventListener('input',calcCap);
+        const capRate = useMemo(() => {
+          const numNoi = parseFloat(noi);
+          const numPrice = parseFloat(price);
+          if (isNaN(numNoi) || isNaN(numPrice) || numPrice === 0) {
+            return 0;
+          }
+          return (numNoi / numPrice) * 100;
+        }, [noi, price]);
 
-// Cap share
-document.getElementById('share-cap').addEventListener('click',()=>{const url=makeShare({tool:'cap',noi:capNOI.value||0,price:capPrice.value||0});copy(url);});
+        return (
+          <div className="p-4 md:p-6 bg-gray-50 rounded-lg">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor="noi" className="block text-sm font-medium text-gray-600">
+                    Net Operating Income (NOI)
+                  </label>
+                  <div className="mt-1 relative rounded-md shadow-sm">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                      <span className="text-gray-400 sm:text-sm">$</span>
+                    </div>
+                    <input
+                      type="number"
+                      name="noi"
+                      id="noi"
+                      className="block w-full rounded-md border-gray-600 bg-gray-800 text-white placeholder-gray-400 pl-7 pr-12 py-2 focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                      placeholder="75000"
+                      value={noi}
+                      onChange={(e) => setNoi(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label htmlFor="price" className="block text-sm font-medium text-gray-600">
+                    Purchase Price
+                  </label>
+                  <div className="mt-1 relative rounded-md shadow-sm">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                      <span className="text-gray-400 sm:text-sm">$</span>
+                    </div>
+                    <input
+                      type="number"
+                      name="price"
+                      id="price"
+                      className="block w-full rounded-md border-gray-600 bg-gray-800 text-white placeholder-gray-400 pl-7 pr-12 py-2 focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                      placeholder="1000000"
+                      value={price}
+                      onChange={(e) => setPrice(e.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="mt-4 md:mt-0 md:ml-6 flex flex-col items-center justify-center bg-white p-6 rounded-lg shadow-inner h-full">
+                <span className="text-sm font-medium text-gray-500">Cap Rate</span>
+                <p className="text-4xl md:text-5xl font-bold text-blue-600 my-1">
+                  {capRate.toFixed(2)}%
+                </p>
+                <p className="text-xs text-gray-400">
+                  Formula: NOI / Price
+                </p>
+              </div>
+            </div>
+             <div className="mt-4">
+                <label className="flex items-center space-x-2 text-sm text-gray-600 cursor-pointer">
+                    <input 
+                        type="checkbox" 
+                        checked={showAdvanced}
+                        onChange={() => setShowAdvanced(!showAdvanced)}
+                        className="rounded text-blue-600 focus:ring-blue-500"
+                    />
+                    <span>Advanced</span>
+                </label>
+                {showAdvanced && (
+                    <div className="mt-2 text-sm text-gray-700 bg-blue-50 p-3 rounded-md">
+                        Need to calculate your Net Operating Income first? Use our <a href="#" onClick={(e) => {e.preventDefault(); setActiveTool(Tool.NOI)}} className="text-blue-600 font-semibold hover:underline">NOI Builder</a>.
+                    </div>
+                )}
+            </div>
+          </div>
+        );
+      };
 
-// Cap pro toggle & sensitivity
-const capProToggle=document.getElementById('cap-pro-toggle'),capPro=document.getElementById('cap-pro'),capSens=document.getElementById('cap-sensitivity');
-capProToggle.addEventListener('click',()=>{if(capPro.style.display==='none'){capPro.style.display='block';updateCapPro(parseFloat(capNOI.value)||0,parseFloat(capPrice.value)||0);}else capPro.style.display='none';});
-function updateCapPro(noi,price){if(price>0){const base=(noi/price)*100;const minus10=((noi*0.9)/price)*100;const plus10=((noi*1.1)/price)*100;capSens.textContent=`Base: ${base.toFixed(2)}%. If NOI −10% → ${minus10.toFixed(2)}%. If NOI +10% → ${plus10.toFixed(2)}%`; }else capSens.textContent='Provide valid numbers to see sensitivity.'}
+      // --- From components/TabSelector.tsx ---
+      const TabSelector = ({ activeTool, setActiveTool }) => {
+        const tools = [Tool.CapRate, Tool.NOI, Tool.CoC, Tool.DSCR];
 
-// NOI
-const noiGross=document.getElementById('noi-gross'),noiExp=document.getElementById('noi-exp'),noiRes=document.getElementById('noi-result'),noiExplain=document.getElementById('noi-explain');
-function calcNOI(){const g=parseFloat(noiGross.value)||0,e=parseFloat(noiExp.value)||0;const noi=g-e;if(!isNaN(noi)){noiRes.textContent='$'+noi.toLocaleString();noiExplain.textContent='NOI is used to calculate Cap Rate and DSCR.';updateNOISens(g,e);}else{noiRes.textContent='—';noiExplain.textContent='Enter gross income and expenses.'}}
-noiGross.addEventListener('input',calcNOI);noiExp.addEventListener('input',calcNOI);
+        return (
+          <div className="flex flex-col space-y-1 md:flex-row md:space-y-0 md:space-x-2 md:border-b md:border-gray-200">
+            {tools.map((tool) => {
+              const isActive = activeTool === tool;
+              return (
+                <button
+                  key={tool}
+                  onClick={() => setActiveTool(tool)}
+                  className={`px-3 py-2 md:px-4 text-left md:text-center text-sm md:text-base font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 w-full md:w-auto rounded-md md:rounded-b-none ${
+                    isActive
+                      ? 'bg-blue-50 text-blue-600 md:bg-transparent md:border-b-2 md:border-blue-600'
+                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  {tool}
+                </button>
+              );
+            })}
+          </div>
+        );
+      };
 
-document.getElementById('share-noi').addEventListener('click',()=>{const url=makeShare({tool:'noi',gross:noiGross.value||0,exp:noiExp.value||0});copy(url);});
-const noiProToggle=document.getElementById('noi-pro-toggle'),noiPro=document.getElementById('noi-pro'),noiSens=document.getElementById('noi-sensitivity');
-noiProToggle.addEventListener('click',()=>{if(noiPro.style.display==='none'){noiPro.style.display='block';updateNOISens(parseFloat(noiGross.value)||0,parseFloat(noiExp.value)||0);}else noiPro.style.display='none';});
-function updateNOISens(gross,exp){const noi=gross-exp;if(!isNaN(noi)){const minus10=(noi*0.9);const plus10=(noi*1.1);noiSens.textContent=`Base NOI: $${Math.round(noi)}. NOI −10% = $${Math.round(minus10)}; NOI +10% = $${Math.round(plus10)}.`;}else noiSens.textContent='Provide numbers to see sensitivity.'}
+      // --- From components/Header.tsx ---
+      const Header = () => {
+        return (
+          <header className="text-center">
+            <h1 className="text-5xl font-bold text-blue-600">
+              CRE Tool Hub
+            </h1>
+            <p className="mt-2 text-sm text-gray-500">
+              Fast CRE calculators — client-side, no storage.
+            </p>
+          </header>
+        );
+      };
+      
+      // --- From App.tsx ---
+      const App = () => {
+        const [activeTool, setActiveTool] = useState(Tool.CapRate);
 
-// CoC
-const cocCash=document.getElementById('coc-cash'),cocInvest=document.getElementById('coc-invest'),cocRes=document.getElementById('coc-result'),cocExplain=document.getElementById('coc-explain');
-function calcCoC(){const cf=parseFloat(cocCash.value)||0,inv=parseFloat(cocInvest.value)||0;if(inv>0){const v=(cf/inv)*100;cocRes.textContent=v.toFixed(2)+' %';cocExplain.textContent='Shows pre-tax cash ROI on cash invested.';updateCoCSens(cf,inv);}else{cocRes.textContent='—';cocExplain.textContent='Enter cash flow and cash invested.'}}
-cocCash.addEventListener('input',calcCoC);cocInvest.addEventListener('input',calcCoC);
+        const toolTitles = {
+          [Tool.CapRate]: 'Cap Rate Calculator — Instant',
+          [Tool.NOI]: 'NOI Builder',
+          [Tool.CoC]: 'Cash-on-Cash Return Calculator',
+          [Tool.DSCR]: 'DSCR Calculator',
+        };
 
-document.getElementById('share-coc').addEventListener('click',()=>{const url=makeShare({tool:'coc',cash:cocCash.value||0,invest:cocInvest.value||0});copy(url);});
-const cocProToggle=document.getElementById('coc-pro-toggle'),cocPro=document.getElementById('coc-pro'),cocSens=document.getElementById('coc-sensitivity');
-cocProToggle.addEventListener('click',()=>{if(cocPro.style.display==='none'){cocPro.style.display='block';updateCoCSens(parseFloat(cocCash.value)||0,parseFloat(cocInvest.value)||0);}else cocPro.style.display='none';});
-function updateCoCSens(cf,inv){if(inv>0){const base=(cf/inv)*100;const minus10=((cf*0.9)/inv)*100;const plus10=((cf*1.1)/inv)*100;cocSens.textContent=`Base: ${base.toFixed(2)}%. If cash flow −10% → ${minus10.toFixed(2)}%. If +10% → ${plus10.toFixed(2)}%`; }else cocSens.textContent='Provide values to see sensitivity.'}
+        const renderTool = () => {
+          switch (activeTool) {
+            case Tool.CapRate:
+              return <CapRateCalculator setActiveTool={setActiveTool} />;
+            case Tool.NOI:
+              return <NoiBuilder />;
+            case Tool.CoC:
+              return <CashOnCashCalculator />;
+            case Tool.DSCR:
+              return <DscrCalculator />;
+            default:
+              return <CapRateCalculator setActiveTool={setActiveTool} />;
+          }
+        };
 
-// DSCR
-const dscrNOI=document.getElementById('dscr-noi'),dscrDebt=document.getElementById('dscr-debt'),dscrRes=document.getElementById('dscr-result'),dscrExplain=document.getElementById('dscr-explain');
-function calcDSCR(){const n=parseFloat(dscrNOI.value)||0,d=parseFloat(dscrDebt.value)||0;if(d>0){const v=(n/d).toFixed(2);dscrRes.textContent=v;dscrExplain.textContent='Lenders typically require DSCR ≥ 1.25 for commercial loans.';updateDSCRSens(n,d);}else{dscrRes.textContent='—';dscrExplain.textContent='Enter NOI and annual debt service.'}}
-dscrNOI.addEventListener('input',calcDSCR);dscrDebt.addEventListener('input',calcDSCR);
+        return (
+          <div className="bg-white text-gray-800 min-h-screen">
+            <div className="max-w-[900px] mx-auto px-5 py-4 md:py-8">
+              <Header />
+              <main className="mt-8 md:mt-12">
+                <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
+                  {toolTitles[activeTool]}
+                </h1>
+                <div className="mt-6">
+                  <TabSelector activeTool={activeTool} setActiveTool={setActiveTool} />
+                </div>
+                <div className="mt-6">
+                  {renderTool()}
+                </div>
+                <div className="mt-8 space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <AffiliateCard
+                      title="Compare Lenders"
+                      description="Find the best financing options."
+                      cta="Compare lenders"
+                    />
+                    <AffiliateCard
+                      title="AI Valuation Tool"
+                      description="Get instant property valuations."
+                      cta="Try valuation tool"
+                    />
+                    <AffiliateCard
+                      title="Property Management Suite"
+                      description="Streamline your operations."
+                      cta="Free trial"
+                    />
+                  </div>
+                  <AdPlaceholder />
+                </div>
+                <div className="mt-6 text-center text-xs text-gray-400">
+                  <p>Not financial advice. Estimates only.</p>
+                </div>
+                <hr className="my-10 border-gray-200" />
+                <SeoFaqContent />
+              </main>
+            </div>
+          </div>
+        );
+      };
+      
+      // --- From index.tsx ---
+      const rootElement = document.getElementById('root');
+      const root = ReactDOM.createRoot(rootElement);
+      root.render(<App />);
 
-document.getElementById('share-dscr').addEventListener('click',()=>{const url=makeShare({tool:'dscr',noi:dscrNOI.value||0,debt:dscrDebt.value||0});copy(url);});
-const dscrProToggle=document.getElementById('dscr-pro-toggle'),dscrPro=document.getElementById('dscr-pro'),dscrSens=document.getElementById('dscr-sensitivity');
-dscrProToggle.addEventListener('click',()=>{if(dscrPro.style.display==='none'){dscrPro.style.display='block';updateDSCRSens(parseFloat(dscrNOI.value)||0,parseFloat(dscrDebt.value)||0);}else dscrPro.style.display='none';});
-function updateDSCRSens(n,d){if(d>0){const base=(n/d);const minus10=((n*0.9)/d);const plus10=((n*1.1)/d);dscrSens.textContent=`Base: ${base.toFixed(2)}. If NOI −10% → ${minus10.toFixed(2)}. If NOI +10% → ${plus10.toFixed(2)}.`;}else dscrSens.textContent='Provide values to see sensitivity.'}
-
-// initial small calc if prefilled
-calcCap();calcNOI();calcCoC();calcDSCR();
-</script>
+    </script>
+<script type="module" src="/index.tsx"></script>
 </body>
 </html>
