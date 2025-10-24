@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRE Tool Hub Calculators</title>
+<style>
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;margin:0;padding:0;background:#fff;color:#111}header{padding:20px;text-align:center;border-bottom:1px solid #ccc}h1{margin:0;font-size:1.8rem;color:#1f6feb}nav{display:flex;justify-content:center;margin:20px 0}nav button{background:#f0f0f0;border:1px solid #ccc;padding:10px 15px;margin:0 5px;cursor:pointer;transition:0.2s}nav button.active{background:#1f6feb;color:#fff}nav button:hover{opacity:0.8}section{max-width:900px;margin:0 auto;padding:20px}label{display:block;margin:10px 0 5px}input{width:100%;padding:8px;margin-bottom:10px;border:1px solid #ccc;border-radius:4px}output{display:block;margin-top:10px;font-size:1.5rem;color:#1f6feb}div.calc-tab{display:none}div.calc-tab.active{display:block}footer{margin-top:40px;padding:20px;text-align:center;border-top:1px solid #ccc;font-size:0.9rem;color:#666} .affiliate{display:flex;justify-content:space-around;margin:20px 0} .affiliate div{background:#f9f9f9;border:1px solid #ccc;padding:10px;width:30%;text-align:center} .ad-placeholder{width:300px;height:250px;background:#eee;margin:20px auto;text-align:center;line-height:250px;color:#666;border:1px dashed #ccc} @media(max-width:600px){nav{flex-direction:column}nav button{margin:5px 0}.affiliate{flex-direction:column} .affiliate div{width:100%;margin-bottom:10px}} </style>
+</head>
+<body>
+<header>
+<h1>CRE Tool Hub Calculators</h1>
+<p>Fast CRE calculators — client-side, no storage</p>
+</header>
+<nav>
+<button class="tab-btn active" data-tab="cap">Cap Rate</button>
+<button class="tab-btn" data-tab="noi">NOI Builder</button>
+<button class="tab-btn" data-tab="coc">Cash-on-Cash</button>
+<button class="tab-btn" data-tab="dscr">DSCR</button>
+</nav>
+<section>
+<!-- Cap Rate -->
+<div class="calc-tab active" id="cap">
+<label for="cap-noi">Net Operating Income ($)</label>
+<input type="number" id="cap-noi" placeholder="e.g., 50000">
+<label for="cap-price">Property Value ($)</label>
+<input type="number" id="cap-price" placeholder="e.g., 500000">
+<output id="cap-result">Cap Rate: --%</output>
+</div>
+<!-- NOI Builder -->
+<div class="calc-tab" id="noi">
+<label for="noi-income">Gross Income ($)</label>
+<input type="number" id="noi-income" placeholder="e.g., 60000">
+<label for="noi-expense">Operating Expenses ($)</label>
+<input type="number" id="noi-expense" placeholder="e.g., 10000">
+<output id="noi-result">NOI: --$</output>
+</div>
+<!-- Cash-on-Cash -->
+<div class="calc-tab" id="coc">
+<label for="coc-cashflow">Annual Cash Flow ($)</label>
+<input type="number" id="coc-cashflow" placeholder="e.g., 15000">
+<label for="coc-investment">Total Cash Invested ($)</label>
+<input type="number" id="coc-investment" placeholder="e.g., 200000">
+<output id="coc-result">Cash-on-Cash: --%</output>
+</div>
+<!-- DSCR -->
+<div class="calc-tab" id="dscr">
+<label for="dscr-noi">Net Operating Income ($)</label>
+<input type="number" id="dscr-noi" placeholder="e.g., 50000">
+<label for="dscr-debt">Debt Service ($)</label>
+<input type="number" id="dscr-debt" placeholder="e.g., 30000">
+<output id="dscr-result">DSCR: --</output>
+</div>
+
+<div class="affiliate">
+<div>Compare lenders<br><button>Go</button></div>
+<div>Try valuation tool<br><button>Go</button></div>
+<div>Free trial<br><button>Go</button></div>
+</div>
+<div class="ad-placeholder">Ad Here</div>
+</section>
+<footer>Not financial advice. Estimates only.</footer>
+<script>
+// Tab functionality
+const tabs=document.querySelectorAll('.tab-btn');
+const calcs=document.querySelectorAll('.calc-tab');
+tabs.forEach(btn=>btn.addEventListener('click',()=>{
+ tabs.forEach(b=>b.classList.remove('active'));
+ btn.classList.add('active');
+ calcs.forEach(c=>c.classList.remove('active'));
+ document.getElementById(btn.dataset.tab).classList.add('active');
+}));
+
+// Cap Rate
+const capNOI=document.getElementById('cap-noi');
+const capPrice=document.getElementById('cap-price');
+const capResult=document.getElementById('cap-result');
+function calcCap(){
+ const noi=parseFloat(capNOI.value);
+ const price=parseFloat(capPrice.value);
+ if(!isNaN(noi)&&!isNaN(price)&&price>0){
+  capResult.textContent='Cap Rate: '+((noi/price)*100).toFixed(2)+'%';
+ }else{capResult.textContent='Cap Rate: --%';}}
+capNOI.addEventListener('input',calcCap);
+capPrice.addEventListener('input',calcCap);
+
+// NOI Builder
+const noiIncome=document.getElementById('noi-income');
+const noiExpense=document.getElementById('noi-expense');
+const noiResult=document.getElementById('noi-result');
+function calcNOI(){
+ const income=parseFloat(noiIncome.value);
+ const expense=parseFloat(noiExpense.value);
+ if(!isNaN(income)&&!isNaN(expense)){noiResult.textContent='NOI: $'+(income-expense).toLocaleString();}
+ else{noiResult.textContent='NOI: --$';}}
+noiIncome.addEventListener('input',calcNOI);
+noiExpense.addEventListener('input',calcNOI);
+
+// Cash-on-Cash
+const cocCashflow=document.getElementById('coc-cashflow');
+const cocInvestment=document.getElementById('coc-investment');
+const cocResult=document.getElementById('coc-result');
+function calcCoC(){
+ const cash=parseFloat(cocCashflow.value);
+ const invest=parseFloat(cocInvestment.value);
+ if(!isNaN(cash)&&!isNaN(invest)&&invest>0){
+  cocResult.textContent='Cash-on-Cash: '+((cash/invest)*100).toFixed(2)+'%';
+ }else{cocResult.textContent='Cash-on-Cash: --%';}}
+cocCashflow.addEventListener('input',calcCoC);
+cocInvestment.addEventListener('input',calcCoC);
+
+// DSCR
+const dscrNOI=document.getElementById('dscr-noi');
+const dscrDebt=document.getElementById('dscr-debt');
+const dscrResult=document.getElementById('dscr-result');
+function calcDSCR(){
+ const noi=parseFloat(dscrNOI.value);
+ const debt=parseFloat(dscrDebt.value);
+ if(!isNaN(noi)&&!isNaN(debt)&&debt>0){
+  dscrResult.textContent='DSCR: '+(noi/debt).toFixed(2);
+ }else{dscrResult.textContent='DSCR: --';}}
+dscrNOI.addEventListener('input',calcDSCR);
+dscrDebt.addEventListener('input',calcDSCR);
+</script>
+</body>
+</html>
