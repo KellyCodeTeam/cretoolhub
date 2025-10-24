@@ -13,26 +13,38 @@ html,body{height:100%;margin:0;font-family:-apple-system,BlinkMacSystemFont,'Seg
 .header h1{margin:0;font-size:1.6rem;color:var(--accent)}
 .header p{margin:6px 0 0;color:var(--muted);font-size:0.95rem}
 .container{max-width:920px;margin:18px auto;padding:18px}
-.tab-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
-.tab{background:#f6f8fb;border:1px solid rgba(15,23,42,.04);padding:8px 12px;border-radius:10px;cursor:pointer;font-weight:600;color:var(--muted)}
-.tab.active{background:var(--accent);color:#fff}
-.card{background:#fff;border-radius:12px;padding:16px;margin:16px 0;border:1px solid #f1f5f9}
+.tab-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:20px;padding:10px 0}
+.tab{background:#f6f8fb;border:1px solid rgba(15,23,42,.1);padding:10px 16px;border-radius:10px;cursor:pointer;font-weight:600;color:var(--muted);font-size:15px;transition:all 0.2s ease}
+.tab:hover{background:#e8edf5}
+.tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.card{background:#fff;border-radius:12px;padding:20px;margin:16px 0;border:1px solid #f1f5f9;box-shadow:0 1px 3px rgba(0,0,0,0.05)}
 .input-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}
 .field{flex:1;min-width:150px}
-label{font-size:13px;color:var(--muted);display:block;margin-bottom:6px}
-input[type=number]{width:100%;padding:9px;border-radius:8px;border:1px solid #e6ecf8;font-size:15px}
-.result{font-size:28px;font-weight:700;margin-top:10px;color:var(--accent)}
-.explainer{font-size:13px;color:var(--muted);margin-top:8px}
-.controls{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
-.btn{padding:8px 12px;border-radius:8px;border:0;cursor:pointer;background:#eef6ff;color:var(--accent);font-weight:600}
+label{font-size:13px;color:var(--muted);display:block;margin-bottom:6px;font-weight:500}
+input[type=number]{width:100%;padding:10px;border-radius:8px;border:1px solid #e6ecf8;font-size:15px}
+.result{font-size:32px;font-weight:700;margin-top:10px;color:var(--accent)}
+.explainer{font-size:13px;color:var(--muted);margin-top:8px;line-height:1.5}
+.controls{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.btn{padding:9px 14px;border-radius:8px;border:0;cursor:pointer;background:#eef6ff;color:var(--accent);font-weight:600;font-size:14px;transition:all 0.2s ease}
+.btn:hover{background:#dce9ff}
 .btn.secondary{background:#f3f4f6;color:var(--muted)}
+.btn.secondary:hover{background:#e5e7eb}
 .small{font-size:13px;color:var(--muted)}
-.aff-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
-.aff-card{flex:1;min-width:180px;padding:10px;border-radius:8px;background:#fbfcfe;border:1px solid #eef3ff;text-align:center}
-.ad{width:300px;height:250px;margin:18px auto;border:1px dashed #e6edf3;display:flex;align-items:center;justify-content:center;color:var(--muted)}
-.footer{font-size:13px;color:var(--muted);text-align:center;margin:22px 0}
-.pro{margin-top:12px;padding:10px;border-radius:8px;background:#fcfeff;border:1px solid #eef6ff}
-@media(max-width:640px){.result{font-size:22px}.input-row{flex-direction:column}.aff-row{flex-direction:column}.ad{width:100%;height:140px}}
+.aff-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}
+.aff-card{flex:1;min-width:200px;padding:16px;border-radius:8px;background:#fbfcfe;border:1px solid #eef3ff;text-align:center}
+.aff-card strong{display:block;margin-bottom:4px;font-size:15px}
+.ad{width:300px;height:250px;margin:20px auto;border:1px dashed #e6edf3;display:flex;align-items:center;justify-content:center;color:var(--muted);background:#fafbfc}
+.footer{font-size:13px;color:var(--muted);text-align:center;margin:30px 0;padding:20px 0;border-top:1px solid #eef2f6}
+.pro{margin-top:12px;padding:12px;border-radius:8px;background:#fcfeff;border:1px solid #eef6ff}
+.section-title{font-size:18px;font-weight:700;margin:30px 0 10px;color:#0b1220}
+@media(max-width:640px){
+  .result{font-size:26px}
+  .input-row{flex-direction:column}
+  .aff-row{flex-direction:column}
+  .ad{width:100%;height:140px}
+  .tab-row{gap:6px}
+  .tab{padding:8px 12px;font-size:14px}
+}
 </style>
 </head>
 <body>
@@ -75,7 +87,7 @@ input[type=number]{width:100%;padding:9px;border-radius:8px;border:1px solid #e6
     <section class="card" id="noi-tool" data-tool="noi" style="display:none;">
       <label>Gross Rental Income — annual $</label>
       <input id="noi-gross" type="number" placeholder="e.g., 120000" />
-      <label>Operating Expenses — annual $</label>
+      <label style="margin-top:10px">Operating Expenses — annual $</label>
       <input id="noi-exp" type="number" placeholder="e.g., 35000" />
       <div class="result" id="noi-result">—</div>
       <div class="explainer" id="noi-explain"> </div>
@@ -93,7 +105,7 @@ input[type=number]{width:100%;padding:9px;border-radius:8px;border:1px solid #e6
     <section class="card" id="coc-tool" data-tool="coc" style="display:none;">
       <label>Annual Pre-Tax Cash Flow ($)</label>
       <input id="coc-cash" type="number" placeholder="e.g., 15000" />
-      <label>Total Cash Invested ($)</label>
+      <label style="margin-top:10px">Total Cash Invested ($)</label>
       <input id="coc-invest" type="number" placeholder="e.g., 200000" />
       <div class="result" id="coc-result">—</div>
       <div class="explainer" id="coc-explain"> </div>
@@ -110,8 +122,8 @@ input[type=number]{width:100%;padding:9px;border-radius:8px;border:1px solid #e6
     <!-- DSCR -->
     <section class="card" id="dscr-tool" data-tool="dscr" style="display:none;">
       <label>Net Operating Income (NOI) — annual $</label>
-      <input id="dscr-noi" type="number" placeholder="e.g., 80000" />
-      <label>Annual Debt Service ($)</label>
+      <input id="dscr-noi" type="number" placeholder="e.g., 75000" />
+      <label style="margin-top:10px">Annual Debt Service ($)</label>
       <input id="dscr-debt" type="number" placeholder="e.g., 60000" />
       <div class="result" id="dscr-result">—</div>
       <div class="explainer" id="dscr-explain"> </div>
@@ -126,15 +138,15 @@ input[type=number]{width:100%;padding:9px;border-radius:8px;border:1px solid #e6
     </section>
 
     <div class="aff-row">
-      <div class="aff-card"><div style="font-weight:700">Compare lenders</div><div class="small">Find competitive CRE loans</div></div>
-      <div class="aff-card"><div style="font-weight:700">Valuation tool</div><div class="small">Try property valuation software</div></div>
-      <div class="aff-card"><div style="font-weight:700">Accounting trial</div><div class="small">Free trial for CRE accounting</div></div>
+      <div class="aff-card"><strong>Compare lenders</strong><div class="small">Find competitive CRE loans</div></div>
+      <div class="aff-card"><strong>Valuation tool</strong><div class="small">Try property valuation software</div></div>
+      <div class="aff-card"><strong>Accounting trial</strong><div class="small">Free trial for CRE accounting</div></div>
     </div>
 
     <div class="ad" id="ad-slot">Ad placeholder (300×250)</div>
 
     <div class="card small">
-      <h3 style="margin:0 0 8px 0">What is Cap Rate?</h3>
+      <h3 class="section-title">What is Cap Rate?</h3>
       <p class="small">A capitalization rate (cap rate) is NOI ÷ Property Value × 100. It measures a property's yield before financing or taxes. Use this with Cash-on-Cash and DSCR for full context.</p>
     </div>
 
@@ -145,21 +157,22 @@ input[type=number]{width:100%;padding:9px;border-radius:8px;border:1px solid #e6
 
 <script>
 // Simple analytics helper: GA4 event if available + localStorage counter (client-only)
-function trackTab(t){try{if(window.gtag)gtag('event','select_tab',{event_category:'tools',event_label:t});localStorage.setItem('tabClicks_'+t,(parseInt(localStorage.getItem('tabClicks_'+t)||'0')+1));}catch(e){}
-}
+function trackTab(t){try{if(window.gtag)gtag('event','select_tab',{event_category:'tools',event_label:t});localStorage.setItem('tabClicks_'+t,(parseInt(localStorage.getItem('tabClicks_'+t)||'0')+1));}catch(e){}}
 
 // Tab logic
 const tabButtons=document.querySelectorAll('.tab');
 tabButtons.forEach(btn=>btn.addEventListener('click',()=>{const tool=btn.dataset.tool;activateTool(tool);trackTab(tool);}));
-function activateTool(tool){document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tool===tool));document.querySelectorAll('[data-tool]').forEach(s=>s.style.display=(s.dataset.tool===tool||s.id==='tool-area')?'block':'none');
-// show/hide sections
-['cap','noi','coc','dscr'].forEach(id=>{const el=document.getElementById(id+'-tool'); if(el) el.style.display=(id===tool)?'block':'none';});
+function activateTool(tool){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tool===tool));
+  document.querySelectorAll('[data-tool]').forEach(s=>s.style.display=(s.dataset.tool===tool||s.id==='tool-area')?'block':'none');
+  // show/hide sections
+  ['cap','noi','coc','dscr'].forEach(id=>{const el=document.getElementById(id+'-tool'); if(el) el.style.display=(id===tool)?'block':'none';});
 }
 // set default
 activateTool(new URLSearchParams(location.search).get('tool')||'cap');
 
 // Utility: copy to clipboard with fallback
-async function copy(text){try{if(navigator.clipboard) await navigator.clipboard.writeText(text); else{const t=document.createElement('textarea');t.value=text;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);}alert('Link copied to clipboard');}catch(e){alert('Copy failed — try manually: '+text);} }
+async function copy(text){try{if(navigator.clipboard) await navigator.clipboard.writeText(text); else{const t=document.createElement('textarea');t.value=text;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);}alert('Link copied to clipboard');}catch(e){alert('Copy failed — try manually: '+text);}}
 
 // Build share URL
 function makeShare(params){const u=new URL(window.location.href.split('?')[0]);Object.keys(params).forEach(k=>u.searchParams.set(k,params[k]));return u.toString();}
