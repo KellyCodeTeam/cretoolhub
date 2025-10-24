@@ -4,17 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CRE Tool Hub</title>
-    <meta name="description" content="Free CRE calculators: Cap Rate, NOI Builder, Cash-on-Cash, DSCR. Fast, client-side tools for commercial real estate investors. No signup required.">
+    
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google tag (gtag.js) -->
-   <script async src="https://www.googletagmanager.com/gtag/js?id=G-N5TV8E0CCL"></script>
-   <script>
-     window.dataLayer = window.dataLayer || [];
-     function gtag(){dataLayer.push(arguments);}
-     gtag('js', new Date());
-     gtag('config', 'G-N5TV8E0CCL');
-   </script>
 
     <!-- Custom Styles -->
     <style>
@@ -27,13 +19,12 @@
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-<link rel="stylesheet" href="/index.css">
 </head>
 <body class="bg-white">
     <div id="root"></div>
 
     <script type="text/babel">
-      const { useState, useMemo } = React;
+      const { useState, useMemo, useEffect } = React;
 
       // --- From types.ts ---
       const Tool = {
@@ -137,22 +128,47 @@
       };
 
       // --- From components/calculators/DscrCalculator.tsx ---
-      const DscrCalculator = () => {
-        const [noi, setNoi] = useState('75000');
-        const [debtService, setDebtService] = useState('60000');
+      const DscrCalculator = ({ initialNoi, initialDebtService }) => {
+        const [noi, setNoi] = useState(initialNoi || '75000');
+        const [debtService, setDebtService] = useState(initialDebtService || '60000');
+        const [showFormula, setShowFormula] = useState(false);
+        const [copyStatus, setCopyStatus] = useState(false);
 
         const dscr = useMemo(() => {
           const numNoi = parseFloat(noi);
           const numDebtService = parseFloat(debtService);
-          if (isNaN(numNoi) || isNaN(numDebtService) || numDebtService === 0) {
-            return 0;
-          }
+          if (isNaN(numNoi) || isNaN(numDebtService) || numDebtService === 0) return 0;
           return numNoi / numDebtService;
         }, [noi, debtService]);
+        
+        const handleShare = () => {
+            const params = new URLSearchParams();
+            params.set('tool', 'dscr');
+            params.set('noi', noi);
+            params.set('debt', debtService);
+            const newUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+            navigator.clipboard.writeText(newUrl).then(() => {
+                setCopyStatus(true);
+                setTimeout(() => setCopyStatus(false), 2000);
+            });
+        };
+
+        const sensitivity = useMemo(() => {
+            const numNoi = parseFloat(noi) || 0;
+            const numDebtService = parseFloat(debtService) || 0;
+            if (numDebtService === 0) return {};
+            return {
+                noiMinus10: ((numNoi * 0.9) / numDebtService),
+                noiPlus10: ((numNoi * 1.1) / numDebtService),
+                debtMinus10: numDebtService * 0.9 === 0 ? Infinity : (numNoi / (numDebtService * 0.9)),
+                debtPlus10: numDebtService * 1.1 === 0 ? Infinity : (numNoi / (numDebtService * 1.1)),
+            }
+        }, [noi, debtService]);
+
 
         return (
           <div className="p-4 md:p-6 bg-gray-50 rounded-lg">
-            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-600">Net Operating Income (NOI)</label>
@@ -173,27 +189,72 @@
                 </p>
               </div>
             </div>
+            <div className="mt-6 flex flex-col md:flex-row gap-3">
+                <button onClick={handleShare} className="bg-blue-600 text-white hover:bg-blue-700 text-sm font-semibold py-2 px-4 rounded-md transition-colors flex-1">
+                    {copyStatus ? 'Link Copied!' : 'Share This Calculation'}
+                </button>
+                <button onClick={() => setShowFormula(!showFormula)} className="bg-gray-200 text-gray-700 hover:bg-gray-300 text-sm font-semibold py-2 px-4 rounded-md transition-colors flex-1">
+                    {showFormula ? 'Hide' : 'Show'} Formula & Sensitivity
+                </button>
+            </div>
+            {showFormula && (
+                <div className="mt-4 bg-blue-50 border-l-4 border-blue-300 p-4 rounded-md text-sm text-gray-800 space-y-3">
+                    <p><strong className="font-semibold">Formula:</strong> DSCR = Net Operating Income (NOI) ÷ Total Debt Service</p>
+                    <div>
+                        <strong className="font-semibold">Sensitivity Analysis (±10%):</strong>
+                        <ul className="list-disc list-inside mt-1 text-gray-700">
+                            <li><strong>Base DSCR:</strong> {dscr.toFixed(2)}x</li>
+                            <li>If NOI changes: -10% → {sensitivity.noiMinus10.toFixed(2)}x | +10% → {sensitivity.noiPlus10.toFixed(2)}x</li>
+                            <li>If Debt changes: -10% → {sensitivity.debtMinus10.toFixed(2)}x | +10% → {sensitivity.debtPlus10.toFixed(2)}x</li>
+                        </ul>
+                    </div>
+                </div>
+            )}
           </div>
         );
       };
       
       // --- From components/calculators/CashOnCashCalculator.tsx ---
-      const CashOnCashCalculator = () => {
-        const [cashFlow, setCashFlow] = useState('15000');
-        const [cashInvested, setCashInvested] = useState('250000');
+      const CashOnCashCalculator = ({ initialCashFlow, initialCashInvested }) => {
+        const [cashFlow, setCashFlow] = useState(initialCashFlow || '15000');
+        const [cashInvested, setCashInvested] = useState(initialCashInvested || '250000');
+        const [showFormula, setShowFormula] = useState(false);
+        const [copyStatus, setCopyStatus] = useState(false);
 
         const cocReturn = useMemo(() => {
           const numCashFlow = parseFloat(cashFlow);
           const numCashInvested = parseFloat(cashInvested);
-          if (isNaN(numCashFlow) || isNaN(numCashInvested) || numCashInvested === 0) {
-            return 0;
-          }
+          if (isNaN(numCashFlow) || isNaN(numCashInvested) || numCashInvested === 0) return 0;
           return (numCashFlow / numCashInvested) * 100;
+        }, [cashFlow, cashInvested]);
+        
+        const handleShare = () => {
+            const params = new URLSearchParams();
+            params.set('tool', 'coc');
+            params.set('flow', cashFlow);
+            params.set('invested', cashInvested);
+            const newUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+            navigator.clipboard.writeText(newUrl).then(() => {
+                setCopyStatus(true);
+                setTimeout(() => setCopyStatus(false), 2000);
+            });
+        };
+        
+        const sensitivity = useMemo(() => {
+            const numCashFlow = parseFloat(cashFlow) || 0;
+            const numCashInvested = parseFloat(cashInvested) || 0;
+            if (numCashInvested === 0) return {};
+            return {
+                flowMinus10: ((numCashFlow * 0.9) / numCashInvested) * 100,
+                flowPlus10: ((numCashFlow * 1.1) / numCashInvested) * 100,
+                investedMinus10: numCashInvested * 0.9 === 0 ? Infinity : (numCashFlow / (numCashInvested * 0.9)) * 100,
+                investedPlus10: numCashInvested * 1.1 === 0 ? Infinity : (numCashFlow / (numCashInvested * 1.1)) * 100,
+            }
         }, [cashFlow, cashInvested]);
 
         return (
           <div className="p-4 md:p-6 bg-gray-50 rounded-lg">
-            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-600">Annual Pre-Tax Cash Flow</label>
@@ -214,29 +275,80 @@
                 </p>
               </div>
             </div>
+            <div className="mt-6 flex flex-col md:flex-row gap-3">
+                <button onClick={handleShare} className="bg-blue-600 text-white hover:bg-blue-700 text-sm font-semibold py-2 px-4 rounded-md transition-colors flex-1">
+                    {copyStatus ? 'Link Copied!' : 'Share This Calculation'}
+                </button>
+                <button onClick={() => setShowFormula(!showFormula)} className="bg-gray-200 text-gray-700 hover:bg-gray-300 text-sm font-semibold py-2 px-4 rounded-md transition-colors flex-1">
+                    {showFormula ? 'Hide' : 'Show'} Formula & Sensitivity
+                </button>
+            </div>
+            {showFormula && (
+                <div className="mt-4 bg-blue-50 border-l-4 border-blue-300 p-4 rounded-md text-sm text-gray-800 space-y-3">
+                    <p><strong className="font-semibold">Formula:</strong> CoC Return = (Annual Pre-Tax Cash Flow ÷ Total Cash Invested) × 100</p>
+                    <div>
+                        <strong className="font-semibold">Sensitivity Analysis (±10%):</strong>
+                        <ul className="list-disc list-inside mt-1 text-gray-700">
+                            <li><strong>Base Return:</strong> {cocReturn.toFixed(2)}%</li>
+                            <li>If Cash Flow changes: -10% → {sensitivity.flowMinus10.toFixed(2)}% | +10% → {sensitivity.flowPlus10.toFixed(2)}%</li>
+                            <li>If Investment changes: -10% → {sensitivity.investedMinus10.toFixed(2)}% | +10% → {sensitivity.investedPlus10.toFixed(2)}%</li>
+                        </ul>
+                    </div>
+                </div>
+            )}
           </div>
         );
       };
       
       // --- From components/calculators/NoiBuilder.tsx ---
-      const NoiBuilder = () => {
-        const [grossRent, setGrossRent] = useState('120000');
-        const [vacancy, setVacancy] = useState('6000');
-        const [otherIncome, setOtherIncome] = useState('5000');
-        const [opEx, setOpEx] = useState('44000');
+      const NoiBuilder = ({ initialGrossRent, initialVacancy, initialOtherIncome, initialOpEx }) => {
+        const [grossRent, setGrossRent] = useState(initialGrossRent || '120000');
+        const [vacancy, setVacancy] = useState(initialVacancy || '6000');
+        const [otherIncome, setOtherIncome] = useState(initialOtherIncome || '5000');
+        const [opEx, setOpEx] = useState(initialOpEx || '44000');
+        const [showFormula, setShowFormula] = useState(false);
+        const [copyStatus, setCopyStatus] = useState(false);
 
         const noi = useMemo(() => {
           const numGrossRent = parseFloat(grossRent) || 0;
           const numVacancy = parseFloat(vacancy) || 0;
           const numOtherIncome = parseFloat(otherIncome) || 0;
           const numOpEx = parseFloat(opEx) || 0;
-          
           return numGrossRent - numVacancy + numOtherIncome - numOpEx;
+        }, [grossRent, vacancy, otherIncome, opEx]);
+        
+        const handleShare = () => {
+            const params = new URLSearchParams();
+            params.set('tool', 'noi');
+            params.set('rent', grossRent);
+            params.set('vacancy', vacancy);
+            params.set('other', otherIncome);
+            params.set('opex', opEx);
+            const newUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+            navigator.clipboard.writeText(newUrl).then(() => {
+                setCopyStatus(true);
+                setTimeout(() => setCopyStatus(false), 2000);
+            });
+        };
+        
+        const calculateNoi = (gpr, vac, other, opex) => gpr - vac + other - opex;
+
+        const sensitivity = useMemo(() => {
+            const numGrossRent = parseFloat(grossRent) || 0;
+            const numVacancy = parseFloat(vacancy) || 0;
+            const numOtherIncome = parseFloat(otherIncome) || 0;
+            const numOpEx = parseFloat(opEx) || 0;
+            return {
+                rentMinus10: calculateNoi(numGrossRent * 0.9, numVacancy, numOtherIncome, numOpEx),
+                rentPlus10: calculateNoi(numGrossRent * 1.1, numVacancy, numOtherIncome, numOpEx),
+                opExMinus10: calculateNoi(numGrossRent, numVacancy, numOtherIncome, numOpEx * 0.9),
+                opExPlus10: calculateNoi(numGrossRent, numVacancy, numOtherIncome, numOpEx * 1.1),
+            }
         }, [grossRent, vacancy, otherIncome, opEx]);
 
         return (
           <div className="p-4 md:p-6 bg-gray-50 rounded-lg">
-            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
               <div className="space-y-3">
                 <div>
                   <label className="block text-sm font-medium text-gray-600">Gross Potential Rent</label>
@@ -258,30 +370,75 @@
               <div className="mt-4 md:mt-0 md:ml-6 flex flex-col items-center justify-center bg-white p-6 rounded-lg shadow-inner h-full">
                 <span className="text-sm font-medium text-gray-500">Net Operating Income (NOI)</span>
                 <p className="text-4xl md:text-5xl font-bold text-blue-600 my-1">
-                  {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(noi)}
+                  {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(noi)}
                 </p>
                 <p className="text-xs text-gray-400">
                   Formula: (GPR - Vacancy + Other) - OpEx
                 </p>
               </div>
             </div>
+            <div className="mt-6 flex flex-col md:flex-row gap-3">
+                <button onClick={handleShare} className="bg-blue-600 text-white hover:bg-blue-700 text-sm font-semibold py-2 px-4 rounded-md transition-colors flex-1">
+                    {copyStatus ? 'Link Copied!' : 'Share This Calculation'}
+                </button>
+                <button onClick={() => setShowFormula(!showFormula)} className="bg-gray-200 text-gray-700 hover:bg-gray-300 text-sm font-semibold py-2 px-4 rounded-md transition-colors flex-1">
+                    {showFormula ? 'Hide' : 'Show'} Formula & Sensitivity
+                </button>
+            </div>
+            {showFormula && (
+                <div className="mt-4 bg-blue-50 border-l-4 border-blue-300 p-4 rounded-md text-sm text-gray-800 space-y-3">
+                    <p><strong className="font-semibold">Formula:</strong> NOI = (Gross Rent - Vacancy + Other Income) - Operating Expenses</p>
+                    <div>
+                        <strong className="font-semibold">Sensitivity Analysis (±10%):</strong>
+                        <ul className="list-disc list-inside mt-1 text-gray-700">
+                            <li><strong>Base NOI:</strong> {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(noi)}</li>
+                            <li>If Gross Rent changes: -10% → ${sensitivity.rentMinus10.toFixed(0)} | +10% → ${sensitivity.rentPlus10.toFixed(0)}</li>
+                            <li>If OpEx changes: -10% → ${sensitivity.opExMinus10.toFixed(0)} | +10% → ${sensitivity.opExPlus10.toFixed(0)}</li>
+                        </ul>
+                    </div>
+                </div>
+            )}
           </div>
         );
       };
 
       // --- From components/calculators/CapRateCalculator.tsx ---
-      const CapRateCalculator = ({ setActiveTool }) => {
-        const [noi, setNoi] = useState('75000');
-        const [price, setPrice] = useState('1000000');
-        const [showAdvanced, setShowAdvanced] = useState(false);
+      const CapRateCalculator = ({ setActiveTool, initialNoi, initialPrice }) => {
+        const [noi, setNoi] = useState(initialNoi || '75000');
+        const [price, setPrice] = useState(initialPrice || '1000000');
+        const [showAdvancedToggle, setShowAdvancedToggle] = useState(false);
+        const [showFormula, setShowFormula] = useState(false);
+        const [copyStatus, setCopyStatus] = useState(false);
 
         const capRate = useMemo(() => {
           const numNoi = parseFloat(noi);
           const numPrice = parseFloat(price);
-          if (isNaN(numNoi) || isNaN(numPrice) || numPrice === 0) {
-            return 0;
-          }
+          if (isNaN(numNoi) || isNaN(numPrice) || numPrice === 0) return 0;
           return (numNoi / numPrice) * 100;
+        }, [noi, price]);
+        
+        const handleShare = () => {
+            const params = new URLSearchParams();
+            params.set('tool', 'caprate');
+            params.set('noi', noi);
+            params.set('price', price);
+            const newUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+            navigator.clipboard.writeText(newUrl).then(() => {
+                setCopyStatus(true);
+                setTimeout(() => setCopyStatus(false), 2000);
+            });
+        };
+        
+        const sensitivity = useMemo(() => {
+            const numNoi = parseFloat(noi) || 0;
+            const numPrice = parseFloat(price) || 0;
+            if (numPrice === 0) return {};
+            return {
+                noiMinus10: ((numNoi * 0.9) / numPrice) * 100,
+                noiPlus10: ((numNoi * 1.1) / numPrice) * 100,
+                priceMinus10: numPrice * 0.9 === 0 ? Infinity : (numNoi / (numPrice * 0.9)) * 100,
+                pricePlus10: numPrice * 1.1 === 0 ? Infinity : (numNoi / (numPrice * 1.1)) * 100,
+            }
         }, [noi, price]);
 
         return (
@@ -326,6 +483,22 @@
                     />
                   </div>
                 </div>
+                 <div className="pt-2">
+                    <label className="flex items-center space-x-2 text-sm text-gray-600 cursor-pointer">
+                        <input 
+                            type="checkbox" 
+                            checked={showAdvancedToggle}
+                            onChange={() => setShowAdvancedToggle(!showAdvancedToggle)}
+                            className="rounded text-blue-600 focus:ring-blue-500 h-4 w-4"
+                        />
+                        <span>Advanced</span>
+                    </label>
+                    {showAdvancedToggle && (
+                        <div className="mt-2 text-sm text-gray-700 bg-blue-50 p-3 rounded-md">
+                            Need to calculate your Net Operating Income first? Use our <a href="#" onClick={(e) => {e.preventDefault(); setActiveTool(Tool.NOI)}} className="text-blue-600 font-semibold hover:underline">NOI Builder</a>.
+                        </div>
+                    )}
+                </div>
               </div>
               <div className="mt-4 md:mt-0 md:ml-6 flex flex-col items-center justify-center bg-white p-6 rounded-lg shadow-inner h-full">
                 <span className="text-sm font-medium text-gray-500">Cap Rate</span>
@@ -337,22 +510,27 @@
                 </p>
               </div>
             </div>
-             <div className="mt-4">
-                <label className="flex items-center space-x-2 text-sm text-gray-600 cursor-pointer">
-                    <input 
-                        type="checkbox" 
-                        checked={showAdvanced}
-                        onChange={() => setShowAdvanced(!showAdvanced)}
-                        className="rounded text-blue-600 focus:ring-blue-500"
-                    />
-                    <span>Advanced</span>
-                </label>
-                {showAdvanced && (
-                    <div className="mt-2 text-sm text-gray-700 bg-blue-50 p-3 rounded-md">
-                        Need to calculate your Net Operating Income first? Use our <a href="#" onClick={(e) => {e.preventDefault(); setActiveTool(Tool.NOI)}} className="text-blue-600 font-semibold hover:underline">NOI Builder</a>.
-                    </div>
-                )}
+            <div className="mt-6 flex flex-col md:flex-row gap-3">
+                <button onClick={handleShare} className="bg-blue-600 text-white hover:bg-blue-700 text-sm font-semibold py-2 px-4 rounded-md transition-colors flex-1">
+                    {copyStatus ? 'Link Copied!' : 'Share This Calculation'}
+                </button>
+                <button onClick={() => setShowFormula(!showFormula)} className="bg-gray-200 text-gray-700 hover:bg-gray-300 text-sm font-semibold py-2 px-4 rounded-md transition-colors flex-1">
+                    {showFormula ? 'Hide' : 'Show'} Formula & Sensitivity
+                </button>
             </div>
+            {showFormula && (
+                <div className="mt-4 bg-blue-50 border-l-4 border-blue-300 p-4 rounded-md text-sm text-gray-800 space-y-3">
+                    <p><strong className="font-semibold">Formula:</strong> Cap Rate = (Net Operating Income ÷ Purchase Price) × 100</p>
+                    <div>
+                        <strong className="font-semibold">Sensitivity Analysis (±10%):</strong>
+                        <ul className="list-disc list-inside mt-1 text-gray-700">
+                            <li><strong>Base Cap Rate:</strong> {capRate.toFixed(2)}%</li>
+                            <li>If NOI changes: -10% → {sensitivity.noiMinus10.toFixed(2)}% | +10% → {sensitivity.noiPlus10.toFixed(2)}%</li>
+                            <li>If Price changes: -10% → {sensitivity.priceMinus10.toFixed(2)}% | +10% → {sensitivity.pricePlus10.toFixed(2)}%</li>
+                        </ul>
+                    </div>
+                </div>
+            )}
           </div>
         );
       };
@@ -400,6 +578,25 @@
       // --- From App.tsx ---
       const App = () => {
         const [activeTool, setActiveTool] = useState(Tool.CapRate);
+        const [initialParams, setInitialParams] = useState(null);
+        
+        useEffect(() => {
+            const params = new URLSearchParams(window.location.search);
+            const tool = params.get('tool');
+            if (tool) {
+                let targetTool = Tool.CapRate;
+                switch(tool) {
+                    case 'noi': targetTool = Tool.NOI; break;
+                    case 'coc': targetTool = Tool.CoC; break;
+                    case 'dscr': targetTool = Tool.DSCR; break;
+                    case 'caprate':
+                    default:
+                        targetTool = Tool.CapRate; break;
+                }
+                setActiveTool(targetTool);
+                setInitialParams(params);
+            }
+        }, []);
 
         const toolTitles = {
           [Tool.CapRate]: 'Cap Rate Calculator — Instant',
@@ -411,13 +608,28 @@
         const renderTool = () => {
           switch (activeTool) {
             case Tool.CapRate:
-              return <CapRateCalculator setActiveTool={setActiveTool} />;
+              return <CapRateCalculator 
+                setActiveTool={setActiveTool} 
+                initialNoi={initialParams?.get('noi')}
+                initialPrice={initialParams?.get('price')}
+              />;
             case Tool.NOI:
-              return <NoiBuilder />;
+              return <NoiBuilder 
+                initialGrossRent={initialParams?.get('rent')}
+                initialVacancy={initialParams?.get('vacancy')}
+                initialOtherIncome={initialParams?.get('other')}
+                initialOpEx={initialParams?.get('opex')}
+              />;
             case Tool.CoC:
-              return <CashOnCashCalculator />;
+              return <CashOnCashCalculator 
+                initialCashFlow={initialParams?.get('flow')}
+                initialCashInvested={initialParams?.get('invested')}
+              />;
             case Tool.DSCR:
-              return <DscrCalculator />;
+              return <DscrCalculator 
+                initialNoi={initialParams?.get('noi')}
+                initialDebtService={initialParams?.get('debt')}
+              />;
             default:
               return <CapRateCalculator setActiveTool={setActiveTool} />;
           }
@@ -434,7 +646,7 @@
                 <div className="mt-6">
                   <TabSelector activeTool={activeTool} setActiveTool={setActiveTool} />
                 </div>
-                <div className="mt-6">
+                <div className="mt-4">
                   {renderTool()}
                 </div>
                 <div className="mt-8 space-y-6">
@@ -474,6 +686,5 @@
       root.render(<App />);
 
     </script>
-<script type="module" src="/index.tsx"></script>
 </body>
 </html>
