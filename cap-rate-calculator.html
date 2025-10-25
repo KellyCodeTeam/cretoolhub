@@ -4,12 +4,14 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>How to Calculate Cap Rate: 2025 Guide for CRE Investors</title>
-    <meta name="description" content="Learn how to calculate cap rate with our complete 2025 guide. Understand the cap rate formula, what makes a good cap rate, and use our free calculator." />
-    <meta name="keywords" content="cap rate calculator, calculate cap rate, capitalization rate, commercial real estate cap rate, how to calculate cap rate, cap rate formula" />
+    <title>Cap Rate Calculator | CRE Tool Hub</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-N5TV8E0CCL"></script>
     <script>
@@ -21,23 +23,295 @@
 
     <style>
       body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
-      .dropdown {
-        visibility: hidden;
-        opacity: 0;
-        transition: visibility 0.1s linear, opacity 0.1s linear;
-      }
-      .group:hover .dropdown {
-        visibility: visible;
-        opacity: 1;
-      }
+      .tooltip { position: relative; display: inline-block; }
+      .tooltip .tooltip-text { visibility: hidden; width: 250px; background-color: #333; color: #fff; text-align: left; border-radius: 6px; padding: 8px; position: absolute; z-index: 10; bottom: 125%; left: 50%; margin-left: -125px; opacity: 0; transition: opacity 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.2); font-size: 0.875rem; line-height: 1.25rem; font-weight: normal; }
+      .tooltip:hover .tooltip-text { visibility: visible; opacity: 1; }
+      .tooltip .tooltip-text::after { content: ""; position: absolute; top: 100%; left: 50%; margin-left: -5px; border-width: 5px; border-style: solid; border-color: #333 transparent transparent transparent; }
+      .dropdown { visibility: hidden; opacity: 0; transition: visibility 0.1s linear, opacity 0.1s linear; }
+      .group:hover .dropdown { visibility: visible; opacity: 1; }
     </style>
-    <script>
-        function toggleMobileMenu() {
-            const menu = document.getElementById('mobile-menu');
-            menu.classList.toggle('hidden');
-        }
-    </script>
 </head>
 <body class="bg-gray-50">
-    
-    <header class="bg-white/80 backdrop-blur-md sticky top
+    <div id="root"></div>
+    <script type="text/babel">
+      const { useState, useMemo, useEffect } = React;
+
+      // --- Shared Components ---
+      const HeaderAndNav = ({ activePage }) => {
+        const [isMenuOpen, setIsMenuOpen] = useState(false);
+        const navLinks = [ { name: 'Home', href: 'index.html' }, { name: 'Blog', href: 'blog.html' }, { name: 'About', href: 'about.html' } ];
+        const calculatorLinks = [
+            { name: 'Cap Rate Calculator', href: 'cap-rate-calculator.html' }, { name: 'NOI Builder', href: 'noi-builder.html' }, { name: 'Cash-on-Cash Calculator', href: 'cash-on-cash-calculator.html' }, { name: 'DSCR Calculator', href: 'dscr-calculator.html' }, { name: 'Loan-to-Value (LTV) Calculator', href: 'ltv-calculator.html' }, { name: 'Debt Yield Calculator', href: 'debt-yield-calculator.html' }, { name: 'Breakeven Occupancy Calculator', href: 'breakeven-occupancy-calculator.html' },
+        ];
+        const linkClasses = (page) => `px-3 py-2 rounded-md text-base font-medium transition-colors ${ activePage === page ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100' }`;
+        return (
+            <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-200">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    {/* Desktop Header */}
+                    <div className="hidden md:flex items-center justify-between h-20">
+                        <div className="flex-1 flex justify-start">
+                             <p className="text-sm text-gray-600">Free CRE calculators — client-side, no storage.</p>
+                        </div>
+                        <div className="flex-shrink-0 px-4">
+                            <a href="index.html" className="text-5xl font-bold text-blue-600">CRE Tool Hub</a>
+                        </div>
+                        <div className="flex-1 flex justify-end">
+                            <nav className="flex items-center space-x-1">
+                                <a href="index.html" className={linkClasses('Home')}>Home</a>
+                                <div className="relative group">
+                                    <a href="cap-rate-calculator.html" className={`${linkClasses('Calculators')} flex items-center`}>
+                                        Calculators <svg className="ml-1 h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
+                                    </a>
+                                    <div className="dropdown absolute left-0 mt-2 w-64 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10"><div className="py-1">{calculatorLinks.map(link => (<a key={link.name} href={link.href} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">{link.name}</a>))}</div></div>
+                                </div>
+                                {navLinks.slice(1).map(link => <a key={link.name} href={link.href} className={linkClasses(link.name)}>{link.name}</a>)}
+                            </nav>
+                        </div>
+                    </div>
+                     {/* Mobile Header */}
+                    <div className="md:hidden flex items-center justify-between h-16">
+                        <div className="flex-shrink-0">
+                            <a href="index.html" className="text-4xl font-bold text-blue-600">CRE Tool Hub</a>
+                        </div>
+                        <div className="-mr-2 flex">
+                            <button onClick={() => setIsMenuOpen(!isMenuOpen)} type="button" className="bg-gray-100 inline-flex items-center justify-center p-2 rounded-md text-gray-600 focus:outline-none"><span className="sr-only">Open main menu</span>
+                                {!isMenuOpen ? (<svg className="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" /></svg>) : (<svg className="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>)}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {isMenuOpen && (<div className="md:hidden"><div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                    {navLinks.map(link => <a key={link.name} href={link.href} className={`block ${linkClasses(link.name)}`}>{link.name}</a>)}
+                    <div className="relative group pl-3 pt-2">
+                        <span className={`block text-gray-700`}>Calculators</span>
+                        <div className="mt-1 space-y-1 pl-4 border-l border-gray-200">
+                          {calculatorLinks.map(link => (<a key={link.name} href={link.href} className="block px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-100">{link.name}</a>))}
+                        </div>
+                     </div>
+                </div></div>)}
+            </header>
+        );
+      };
+      const Footer = () => (
+        <footer className="bg-white border-t border-gray-200"><div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center text-gray-500"><p className="text-xs max-w-3xl mx-auto"><strong>Disclaimer:</strong> CRE Tool Hub provides educational calculators for informational purposes only. This is not financial, investment, or legal advice. Consult qualified professionals before making investment decisions.</p><div className="mt-4 flex justify-center space-x-4 text-xs"><a href="#" className="hover:text-gray-700">Privacy Policy</a><span>&middot;</span><a href="#" className="hover:text-gray-700">Terms of Use</a><span>&middot;</span><a href="#" className="hover:text-gray-700">Contact</a></div><p className="mt-4 text-xs">&copy; {new Date().getFullYear() + 1} CRE Tool Hub. All rights reserved.</p></div></footer>
+      );
+      const InfoTooltip = ({ text }) => (<span className="tooltip ml-1 text-gray-400 cursor-help"><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 inline-block" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg><span className="tooltip-text">{text}</span></span>);
+      const AdPlaceholder = ({ widthClass, heightClass }) => (<div className={`bg-gray-100 flex items-center justify-center mx-auto rounded-md border-2 border-dashed border-gray-300 ${widthClass} ${heightClass}`}><div className="text-center"><span className="text-gray-500 text-sm block">Advertisement</span></div></div>);
+      const AccordionItem = ({ question, answer }) => {
+        const [isOpen, setIsOpen] = useState(false);
+        return (<div className="py-4"><button onClick={() => setIsOpen(!isOpen)} className="w-full flex justify-between items-center text-left text-gray-800 focus:outline-none"><span className="font-semibold">{question}</span><svg className={`w-5 h-5 transform transition-transform duration-200 ${isOpen ? 'rotate-180' : 'rotate-0'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg></button>{isOpen && (<div className="mt-3 text-gray-600 prose max-w-none"><p>{answer}</p></div>)}</div>);
+      };
+      
+      const CapRateCalculator = ({ noi, setNoi, price, setPrice, capRate, handleDownloadPdf }) => {
+        const [showFormula, setShowFormula] = useState(false);
+        const [copyStatus, setCopyStatus] = useState(false);
+
+        const handleShare = () => {
+            const params = new URLSearchParams();
+            params.set('tool', 'caprate');
+            params.set('noi', noi);
+            params.set('price', price);
+            const newUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+            navigator.clipboard.writeText(newUrl).then(() => {
+                setCopyStatus(true);
+                setTimeout(() => setCopyStatus(false), 2000);
+            });
+        };
+        
+        const sensitivity = useMemo(() => {
+            const numNoi = parseFloat(noi) || 0;
+            const numPrice = parseFloat(price) || 0;
+            if (numPrice === 0) return {};
+            return {
+                noiMinus10: ((numNoi * 0.9) / numPrice) * 100,
+                noiPlus10: ((numNoi * 1.1) / numPrice) * 100,
+                priceMinus10: numPrice * 0.9 === 0 ? Infinity : (numNoi / (numPrice * 0.9)) * 100,
+                pricePlus10: numPrice * 1.1 === 0 ? Infinity : (numNoi / (numPrice * 1.1)) * 100,
+            }
+        }, [noi, price]);
+
+        return (
+          <div className="p-4 md:p-6 bg-white border border-gray-200 rounded-lg">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor="noi" className="block text-sm font-medium text-gray-600">Net Operating Income (NOI) <InfoTooltip text="Annual income after all operating expenses, excluding debt payments and taxes." /></label>
+                  <div className="mt-1 relative rounded-md shadow-sm"><div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"><span className="text-gray-400 sm:text-sm">$</span></div><input type="number" name="noi" id="noi" className="block w-full rounded-md border-gray-300 bg-gray-50 text-gray-900 placeholder-gray-400 pl-7 py-2 focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="75000" value={noi} onChange={(e) => setNoi(e.target.value)}/></div>
+                </div>
+                <div>
+                  <label htmlFor="price" className="block text-sm font-medium text-gray-600">Purchase Price <InfoTooltip text="Total acquisition cost including closing costs and immediate repairs." /></label>
+                  <div className="mt-1 relative rounded-md shadow-sm"><div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"><span className="text-gray-400 sm:text-sm">$</span></div><input type="number" name="price" id="price" className="block w-full rounded-md border-gray-300 bg-gray-50 text-gray-900 placeholder-gray-400 pl-7 py-2 focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="1000000" value={price} onChange={(e) => setPrice(e.target.value)}/></div>
+                </div>
+                 <div className="pt-2">
+                    <div className="mt-2 text-sm text-gray-700 bg-blue-50 p-3 rounded-md">Need to calculate your Net Operating Income first? Use our <a href="noi-builder.html" className="text-blue-600 font-semibold hover:underline">NOI Builder</a>.</div>
+                </div>
+              </div>
+              <div className="mt-4 md:mt-0 md:ml-6 flex flex-col items-center justify-center bg-gray-50 p-6 rounded-lg shadow-inner h-full">
+                <span className="text-sm font-medium text-gray-500">Cap Rate</span>
+                <p className="text-4xl md:text-5xl font-bold text-blue-600 my-1">{capRate.toFixed(2)}%</p>
+                <p className="text-xs text-gray-400">Formula: NOI / Price</p>
+              </div>
+            </div>
+            <div className="mt-6 flex flex-col md:flex-row md:flex-wrap gap-3">
+                <button onClick={handleShare} className="bg-blue-600 text-white hover:bg-blue-700 text-sm font-semibold py-2 px-4 rounded-md transition-colors flex-1">{copyStatus ? 'Link Copied!' : 'Share This Calculation'}</button>
+                <button onClick={() => setShowFormula(!showFormula)} className="bg-gray-200 text-gray-700 hover:bg-gray-300 text-sm font-semibold py-2 px-4 rounded-md transition-colors flex-1">{showFormula ? 'Hide' : 'Show'} Formula & Sensitivity</button>
+                <button onClick={handleDownloadPdf} className="border border-gray-300 text-gray-700 hover:bg-gray-100 text-sm font-semibold py-2 px-4 rounded-md transition-colors w-full md:w-auto flex-grow">Download PDF Report</button>
+            </div>
+            {showFormula && (<div className="mt-4 bg-blue-50 border-l-4 border-blue-300 p-4 rounded-md text-sm text-gray-800 space-y-3"><p><strong className="font-semibold">Formula:</strong> Cap Rate = (Net Operating Income ÷ Purchase Price) × 100</p><div><strong className="font-semibold">Sensitivity Analysis (±10%):</strong><ul className="list-disc list-inside mt-1 text-gray-700"><li><strong>Base Cap Rate:</strong> {capRate.toFixed(2)}%</li><li>If NOI changes: -10% → {sensitivity.noiMinus10.toFixed(2)}% | +10% → {sensitivity.noiPlus10.toFixed(2)}%</li><li>If Price changes: -10% → {sensitivity.priceMinus10.toFixed(2)}% | +10% → {sensitivity.pricePlus10.toFixed(2)}%</li></ul></div></div>)}
+          </div>
+        );
+      };
+
+      // --- Page Specific Component ---
+      const CapRatePage = () => {
+        const [noi, setNoi] = useState('75000');
+        const [price, setPrice] = useState('1000000');
+        
+        useEffect(() => {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('noi')) setNoi(params.get('noi'));
+            if (params.get('price')) setPrice(params.get('price'));
+        }, []);
+
+        const capRate = useMemo(() => {
+          const numNoi = parseFloat(noi);
+          const numPrice = parseFloat(price);
+          if (isNaN(numNoi) || isNaN(numPrice) || numPrice === 0) return 0;
+          return (numNoi / numPrice) * 100;
+        }, [noi, price]);
+        
+        const getCapRateInterpretation = (rate) => {
+            if (rate <= 0) return "a negative or zero return, which indicates the property's expenses exceed its income.";
+            if (rate < 4) return "a very low return, typical for extremely low-risk, trophy assets in prime locations.";
+            if (rate >= 4 && rate < 6) return "a lower-risk profile, often associated with Class A properties in stable markets (coastal cities, institutional-grade).";
+            if (rate >= 6 && rate < 8) return "a moderate-risk profile, typical for Class B properties with solid fundamentals.";
+            if (rate >= 8 && rate < 10) return "a higher-risk profile, often seen in Class C properties or value-add opportunities.";
+            return "a high-risk profile, common for distressed assets or investments in emerging markets.";
+        };
+        const interpretationText = getCapRateInterpretation(capRate);
+        const faqs = [ { question: "What is a good cap rate?", answer: "It depends on property type, location, and risk tolerance. Generally, 5–10% is a common range for stable commercial properties in urban areas. Lower cap rates (4-6%) imply lower risk and higher value, while higher rates (8%+) suggest higher risk or a value-add opportunity." }, { question: "Can cap rate predict future returns?", answer: "No, a cap rate is a snapshot of a property's performance based on its current net operating income. It does not account for future appreciation, changes in market rents, or unexpected expenses. It's a measure of current yield, not a projection of total return." }, { question: "How do interest rates affect cap rates?", answer: "Rising interest rates typically increase cap rates (which lowers property values). This happens because as borrowing becomes more expensive, investors demand higher returns (a higher cap rate) to compensate for the increased cost of financing and to match yields available from lower-risk investments like bonds." }, ];
+
+        const handleDownloadPdf = () => {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const today = new Date().toLocaleDateString();
+
+            doc.setFontSize(18);
+            doc.setFont("helvetica", "bold");
+            doc.text("CRE Tool Hub", 105, 20, null, null, "center");
+
+            doc.setFontSize(16);
+            doc.setFont("helvetica", "normal");
+            doc.text("Cap Rate Calculator Report", 105, 30, null, null, "center");
+            
+            doc.setFontSize(10);
+            doc.text(`Date: ${today}`, 105, 36, null, null, "center");
+
+            doc.setLineWidth(0.5);
+            doc.line(20, 45, 190, 45);
+
+            doc.setFontSize(12);
+            doc.setFont("helvetica", "bold");
+            doc.text("Inputs:", 20, 55);
+            
+            doc.setFont("helvetica", "normal");
+            doc.text(`Net Operating Income (NOI): $${parseFloat(noi || 0).toLocaleString()}`, 20, 62);
+            doc.text(`Purchase Price: $${parseFloat(price || 0).toLocaleString()}`, 20, 69);
+            
+            doc.line(20, 78, 190, 78);
+            
+            doc.setFont("helvetica", "bold");
+            doc.text("Result:", 20, 88);
+            
+            doc.setFont("helvetica", "normal");
+            doc.text(`Calculated Cap Rate: ${capRate.toFixed(2)}%`, 20, 95);
+            doc.text("Formula: (NOI / Purchase Price) x 100", 20, 102);
+            
+            doc.line(20, 111, 190, 111);
+
+            doc.setFont("helvetica", "bold");
+            doc.text("Interpretation:", 20, 121);
+            
+            doc.setFont("helvetica", "normal");
+            const interpretationLines = doc.splitTextToSize(`Your ${capRate.toFixed(2)}% cap rate suggests ${interpretationText}`, 170);
+            doc.text(interpretationLines, 20, 128);
+
+            doc.line(20, 260, 190, 260);
+            doc.setFontSize(8);
+            doc.setTextColor(150);
+            doc.text("This calculation is for educational purposes only and does not constitute financial advice.", 105, 265, null, null, "center");
+            doc.text("Powered by CREToolHub.com | Visit: kellycodeteam.github.io/cretoolhub", 105, 270, null, null, "center");
+
+            doc.save("cap-rate-report.pdf");
+        };
+
+        return (
+            <div className="bg-gray-50 text-gray-800 min-h-screen">
+                <HeaderAndNav activePage="Calculators" />
+                <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+                    <nav className="text-sm mb-4" aria-label="Breadcrumb"><ol className="list-none p-0 inline-flex">
+                        <li className="flex items-center"><a href="index.html" className="text-gray-500 hover:text-blue-600">Home</a><svg className="fill-current w-3 h-3 mx-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z"/></svg></li>
+                        <li><span className="text-gray-700 font-medium">Cap Rate Calculator</span></li></ol>
+                    </nav>
+
+                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900">Cap Rate Calculator — Instant</h1>
+                    <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <div className="lg:col-span-2">
+                           <CapRateCalculator noi={noi} setNoi={setNoi} price={price} setPrice={setPrice} capRate={capRate} handleDownloadPdf={handleDownloadPdf} />
+                           
+                           {parseFloat(price) > 0 && (
+                                <div className="mt-6 bg-white p-6 rounded-lg border border-gray-200">
+                                    <h3 className="text-xl font-bold text-gray-900">📊 What does this mean?</h3>
+                                    <div className="mt-4 space-y-2 text-gray-700">
+                                        <p>Your <strong>{capRate.toFixed(2)}%</strong> cap rate suggests {interpretationText}</p>
+                                        <ul className="list-disc list-inside space-y-1 pl-2 text-sm text-gray-600">
+                                            <li><strong>4-6%:</strong> Lower risk, Class A properties in stable markets.</li>
+                                            <li><strong>6-8%:</strong> Moderate risk, Class B properties with solid fundamentals.</li>
+                                            <li><strong>8-10%:</strong> Higher risk, Class C properties or value-add opportunities.</li>
+                                            <li><strong>10%+:</strong> High risk, distressed assets or emerging markets.</li>
+                                        </ul>
+                                    </div>
+                                    <div className="mt-4 text-sm text-gray-600 bg-gray-50 p-3 rounded-md border border-gray-200">A professional valuation is key to confirming your purchase price. <a href="#" className="text-blue-600 font-semibold hover:underline">Get a data-driven valuation estimate here.</a></div>
+                                </div>
+                            )}
+
+                           <div className="mt-6 bg-blue-50 border-l-4 border-blue-400 p-4 rounded-md">
+                               <p><strong className="font-semibold text-blue-800">💡 Pro Tip:</strong> Compare your cap rate to the 10-year treasury rate. A healthy commercial property should offer at least 2-3% above treasury rates to justify the risk premium.</p>
+                           </div>
+
+                           <div className="mt-8 prose max-w-none text-gray-700 bg-white p-6 rounded-lg border border-gray-200">
+                                <h2 className="text-2xl font-bold text-gray-900">Understanding Cap Rate</h2>
+                                <p className="mb-4">Want a deeper dive? <a href="blog/how-to-calculate-cap-rate.html" className="text-blue-600 font-semibold hover:underline">Read our Complete 2025 Guide to Understanding Cap Rate.</a></p>
+                                <p>The Capitalization Rate, or "Cap Rate," is one of the most fundamental metrics in commercial real estate analysis. It represents the unlevered annual rate of return an investor can expect to generate from an income-producing property. In simple terms, it measures a property's profitability relative to its purchase price.</p>
+                                
+                                <h3>Typical Cap Rates by Market & Property Type</h3>
+                                <div className="overflow-x-auto my-6"><table className="min-w-full divide-y divide-gray-200 border border-gray-200 text-sm"><thead><tr className="bg-gray-50"><th className="px-4 py-2 text-left font-medium text-gray-600">Property Type</th><th className="px-4 py-2 text-left font-medium text-gray-600">Gateway City (Class A)</th><th className="px-4 py-2 text-left font-medium text-gray-600">Secondary Market</th><th className="px-4 py-2 text-left font-medium text-gray-600">Tertiary Market</th></tr></thead><tbody className="bg-white divide-y divide-gray-200"><tr><td className="px-4 py-2 font-medium text-gray-800">Multifamily</td><td className="px-4 py-2">4.0-5.5%</td><td className="px-4 py-2">5.5-6.5%</td><td className="px-4 py-2">6.5-8.0%</td></tr><tr className="bg-gray-50"><td className="px-4 py-2 font-medium text-gray-800">Office</td><td className="px-4 py-2">5.0-6.5%</td><td className="px-4 py-2">6.5-7.5%</td><td className="px-4 py-2">7.5-9.0%</td></tr><tr><td className="px-4 py-2 font-medium text-gray-800">Retail</td><td className="px-4 py-2">5.5-7.0%</td><td className="px-4 py-2">7.0-8.0%</td><td className="px-4 py-2">8.0-10.0%</td></tr><tr className="bg-gray-50"><td className="px-4 py-2 font-medium text-gray-800">Industrial</td><td className="px-4 py-2">5.0-6.5%</td><td className="px-4 py-2">6.5-7.5%</td><td className="px-4 py-2">7.5-9.0%</td></tr></tbody></table></div>
+
+                                <p>Investors use cap rates to quickly compare the performance of different properties or markets. A higher cap rate generally indicates a higher potential return but often comes with higher risk. Conversely, a lower cap rate implies lower risk and a more stable, predictable income stream, but with a lower return. The metric is crucial because it allows for an apples-to-apples comparison of properties, irrespective of how they are financed.</p>
+                           </div>
+
+                           <div className="mt-8 bg-white p-6 rounded-lg border border-gray-200">
+                                <h3 className="text-2xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h3>
+                                <div className="space-y-3 border-t border-gray-200 divide-y divide-gray-200">
+                                    {faqs.map((faq, index) => <AccordionItem key={index} question={faq.question} answer={faq.answer} />)}
+                                </div>
+                           </div>
+                        </div>
+
+                        <aside className="space-y-6">
+                            <AdPlaceholder widthClass="w-[300px]" heightClass="h-[250px]" />
+                            <AdPlaceholder widthClass="w-[300px]" heightClass="h-[250px]" />
+                        </aside>
+                    </div>
+                     <div className="mt-8"><AdPlaceholder widthClass="w-full max-w-[728px]" heightClass="h-[90px]" /></div>
+                </main>
+                <Footer />
+            </div>
+        );
+      };
+      
+      const root = ReactDOM.createRoot(document.getElementById('root'));
+      root.render(<CapRatePage />);
+    </script>
+</body>
+</html>
