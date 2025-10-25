@@ -46,8 +46,8 @@
         const [isMenuOpen, setIsMenuOpen] = useState(false);
         const navLinks = [
             { name: 'Home', href: 'index.html' },
-            { name: 'Blog', href: '#' },
-            { name: 'About', href: '#' },
+            { name: 'Blog', href: 'blog.html' },
+            { name: 'About', href: 'about.html' },
         ];
 
         const calculatorLinks = [
@@ -74,7 +74,7 @@
                              <p className="text-sm text-gray-600">Free CRE calculators — client-side, no storage.</p>
                         </div>
                         <div className="flex-shrink-0 px-4">
-                            <a href="index.html" className="text-3xl font-bold text-blue-600">CRE Tool Hub</a>
+                            <a href="index.html" className="text-5xl font-bold text-blue-600">CRE Tool Hub</a>
                         </div>
                         <div className="flex-1 flex justify-end">
                             <nav className="flex items-center space-x-1">
@@ -102,7 +102,7 @@
                     {/* Mobile Header */}
                     <div className="md:hidden flex items-center justify-between h-16">
                         <div className="flex-shrink-0">
-                            <a href="index.html" className="text-2xl font-bold text-blue-600">CRE Tool Hub</a>
+                            <a href="index.html" className="text-4xl font-bold text-blue-600">CRE Tool Hub</a>
                         </div>
                         <div className="-mr-2 flex">
                             <button onClick={() => setIsMenuOpen(!isMenuOpen)} type="button" className="bg-gray-100 inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" aria-controls="mobile-menu" aria-expanded="false">
@@ -119,16 +119,15 @@
                 {isMenuOpen && (
                     <div className="md:hidden" id="mobile-menu">
                         <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                            <a href="index.html" className={`block ${linkClasses('Home')}`}>Home</a>
-                             <div className="relative group">
-                                <a href="cap-rate-calculator.html" className={`block ${linkClasses('Calculators')}`}>Calculators</a>
-                                <div className="mt-1 space-y-1 pl-4">
+                            {navLinks.map(link => <a key={link.name} href={link.href} className={`block ${linkClasses(link.name)}`}>{link.name}</a>)}
+                             <div className="relative group pl-3 pt-2">
+                                <span className={`block text-gray-700`}>Calculators</span>
+                                <div className="mt-1 space-y-1 pl-4 border-l border-gray-200">
                                   {calculatorLinks.map(link => (
                                       <a key={link.name} href={link.href} className="block px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-100">{link.name}</a>
                                   ))}
                                 </div>
                              </div>
-                            {navLinks.slice(1).map(link => <a key={link.name} href={link.href} className={`block ${linkClasses(link.name)}`}>{link.name}</a>)}
                         </div>
                     </div>
                 )}
@@ -175,19 +174,19 @@
         const blogPosts = [
             {
                 title: 'How to Calculate Cap Rate: A Complete Guide',
-                href: 'how-to-calculate-cap-rate.html',
+                href: 'blog/how-to-calculate-cap-rate.html',
                 category: { name: 'Valuation' },
                 description: 'Dive deep into the most fundamental metric in commercial real estate. Learn the formula, what makes a good cap rate, and common mistakes to avoid.',
             },
             {
                 title: 'Understanding DSCR for Commercial Loans',
-                href: 'dscr-calculator-guide.html',
+                href: 'blog/dscr-calculator-guide.html',
                 category: { name: 'Financing' },
                 description: 'The Debt Service Coverage Ratio is critical for loan approval. Learn why lenders care about it and how to improve your ratio to secure better financing terms.',
             },
             {
                 title: 'Building Your Net Operating Income (NOI)',
-                href: 'noi-calculator-guide.html',
+                href: 'blog/noi-calculator-guide.html',
                 category: { name: 'Analysis' },
                 description: 'NOI is the foundation of CRE analysis. Our step-by-step guide shows you what to include, what to exclude, and why it’s the most important number in your analysis.',
             },
@@ -251,7 +250,7 @@
                                 <div className="flex-1 bg-white p-6 flex flex-col justify-between">
                                     <div className="flex-1">
                                         <p className="text-sm font-medium text-blue-600">
-                                            <a href="#" className="hover:underline">{post.category.name}</a>
+                                            <a href="blog.html" className="hover:underline">{post.category.name}</a>
                                         </p>
                                         <a href={post.href} className="block mt-2">
                                             <p className="text-xl font-semibold text-gray-900">{post.title}</p>
