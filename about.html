@@ -1,147 +1,47 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>About CRE Tool Hub - Free Commercial Real Estate Calculators</title>
-    <meta name="description" content="Learn about CRE Tool Hub's free commercial real estate calculators. Professional-grade tools for cap rate, NOI, cash-on-cash, DSCR, LTV, and more. Client-side calculations, complete privacy." />
-    <meta name="keywords" content="commercial real estate calculators, CRE tools, property analysis, investment calculators, cap rate calculator, NOI calculator, free real estate tools" />
-    
+    <title>About CRE Tool Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-N5TV8E0CCL"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-N5TV8E0CCL');
-    </script>
-
     <style>
       body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
-      .dropdown { position: relative; display: inline-block; }
-      .dropdown-content {
-        display: none;
-        position: absolute;
-        background-color: white;
-        min-width: 280px;
-        box-shadow: 0px 8px 16px rgba(0,0,0,0.1);
-        z-index: 1;
-        border-radius: 8px;
-        padding: 8px 0;
-        top: 100%;
-        left: 0;
-      }
-      .dropdown-content a {
-        color: #1f2937;
-        padding: 12px 20px;
-        text-decoration: none;
-        display: block;
-        transition: background-color 0.2s;
-      }
-      .dropdown-content a:hover {
-        background-color: #f3f4f6;
-      }
-      .dropdown:hover .dropdown-content {
-        display: block;
-      }
+      .dropdown { visibility: hidden; opacity: 0; transition: visibility 0.1s linear, opacity 0.1s linear; }
+      .group:hover .dropdown { visibility: visible; opacity: 1; }
     </style>
 </head>
 <body class="bg-gray-50">
-    <!-- Header -->
-    <header class="bg-white shadow-sm sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div class="flex justify-between items-center">
-                <div>
-                    <a href="index.html" class="text-2xl font-bold text-blue-600">CRE Tool Hub</a>
-                    <p class="text-sm text-gray-600">Free CRE calculators — client-side, no storage.</p>
-                </div>
-                <nav class="flex gap-6">
-                    <a href="index.html" class="text-gray-700 hover:text-blue-600 transition">Home</a>
-                    <div class="dropdown">
-                        <a href="#" class="text-gray-700 hover:text-blue-600 transition">Calculators</a>
-                        <div class="dropdown-content">
-                            <a href="cap-rate-calculator.html">Cap Rate Calculator</a>
-                            <a href="noi-builder.html">NOI Builder</a>
-                            <a href="cash-on-cash-calculator.html">Cash-on-Cash Calculator</a>
-                            <a href="dscr-calculator.html">DSCR Calculator</a>
-                            <a href="ltv-calculator.html">Loan-to-Value Calculator</a>
-                            <a href="debt-yield-calculator.html">Debt Yield Calculator</a>
-                            <a href="breakeven-occupancy-calculator.html">Breakeven Occupancy Calculator</a>
+    <div id="root"></div>
+    <script type="text/babel">
+      const { useState } = React;
+
+      // --- Shared Components ---
+      const HeaderAndNav = ({ activePage }) => {
+        const [isMenuOpen, setIsMenuOpen] = useState(false);
+        const navLinks = [ { name: 'Home', href: 'index.html' }, { name: 'Blog', href: 'blog.html' }, { name: 'About', href: 'about.html' } ];
+        const calculatorLinks = [
+            { name: 'Cap Rate Calculator', href: 'cap-rate-calculator.html' }, { name: 'NOI Builder', href: 'noi-builder.html' }, { name: 'Cash-on-Cash Calculator', href: 'cash-on-cash-calculator.html' }, { name: 'DSCR Calculator', href: 'dscr-calculator.html' }, { name: 'Loan-to-Value (LTV) Calculator', href: 'ltv-calculator.html' }, { name: 'Debt Yield Calculator', href: 'debt-yield-calculator.html' }, { name: 'Breakeven Occupancy Calculator', href: 'breakeven-occupancy-calculator.html' },
+        ];
+        const linkClasses = (page) => `px-3 py-2 rounded-md text-base font-medium transition-colors ${ activePage === page ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100' }`;
+        return (
+            <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-200">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    {/* Desktop Header */}
+                    <div className="hidden md:flex items-center justify-between h-20">
+                        <div className="flex-1 flex justify-start">
+                             <p className="text-sm text-gray-600">Free CRE calculators — client-side, no storage.</p>
                         </div>
-                    </div>
-                    <a href="blog.html" class="text-gray-700 hover:text-blue-600 transition">Blog</a>
-                    <a href="about.html" class="text-blue-600 font-semibold">About</a>
-                </nav>
-            </div>
-        </div>
-    </header>
-
-    <!-- Main Content -->
-    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h1 class="text-4xl font-bold text-gray-900 mb-8">About CRE Tool Hub</h1>
-        
-        <div class="bg-white rounded-lg shadow-sm p-8 space-y-6">
-            <div class="prose prose-lg max-w-none">
-                <p class="text-lg text-gray-700 leading-relaxed">
-                    CRE Tool Hub provides free commercial real estate calculators designed for property investors, analysts, and real estate professionals. Our suite of professional-grade calculation tools helps you evaluate investment opportunities, analyze property performance, and make data-driven decisions with confidence.
-                </p>
-
-                <p class="text-gray-700 leading-relaxed">
-                    Every calculator on CRE Tool Hub runs entirely in your browser using client-side technology. We never collect, store, or transmit your property data to any server. Your financial information and investment analysis remain completely private. This privacy-first approach ensures that sensitive deal information, proprietary calculations, and confidential property data stay secure on your device.
-                </p>
-
-                <p class="text-gray-700 leading-relaxed">
-                    Our commercial real estate calculator suite includes essential metrics for comprehensive property analysis: Cap Rate Calculator for capitalization rate and return evaluation, NOI Builder for net operating income calculations, Cash-on-Cash Return Calculator for measuring actual investment returns, DSCR Calculator for debt service coverage ratio and lender requirements, Loan-to-Value (LTV) Calculator for financing analysis, Debt Yield Calculator for commercial underwriting standards, and Breakeven Occupancy Calculator for multifamily property evaluation.
-                </p>
-
-                <p class="text-gray-700 leading-relaxed">
-                    CRE Tool Hub was created by commercial real estate professionals to address the need for accurate, accessible, and privacy-focused calculation tools. Whether you're analyzing your first multifamily property, evaluating office building cap rates, calculating debt service coverage for commercial loans, or performing comprehensive investment analysis across multiple property types, our free calculators provide the professional-grade formulas and instant results you need.
-                </p>
-
-                <p class="text-gray-700 leading-relaxed">
-                    All calculations use industry-standard formulas trusted by institutional investors, commercial lenders, and real estate professionals. Share your results via URL with partners, lenders, or team members, or download PDF reports for your records. Every tool is designed for speed, accuracy, and ease of use—whether you're conducting quick property screenings or detailed underwriting analysis.
-                </p>
-
-                <p class="text-gray-700 leading-relaxed">
-                    CRE Tool Hub is completely free to use with no registration, no subscription fees, and no hidden costs. We believe professional real estate analysis tools should be accessible to everyone—from first-time commercial investors to seasoned portfolio managers.
-                </p>
-            </div>
-
-            <div class="border-t pt-6 mt-8">
-                <h2 class="text-2xl font-bold text-gray-900 mb-4">Our Calculators</h2>
-                <div class="grid md:grid-cols-2 gap-4">
-                    <a href="cap-rate-calculator.html" class="text-blue-600 hover:text-blue-800">→ Cap Rate Calculator</a>
-                    <a href="noi-builder.html" class="text-blue-600 hover:text-blue-800">→ NOI Builder</a>
-                    <a href="cash-on-cash-calculator.html" class="text-blue-600 hover:text-blue-800">→ Cash-on-Cash Calculator</a>
-                    <a href="dscr-calculator.html" class="text-blue-600 hover:text-blue-800">→ DSCR Calculator</a>
-                    <a href="ltv-calculator.html" class="text-blue-600 hover:text-blue-800">→ Loan-to-Value Calculator</a>
-                    <a href="debt-yield-calculator.html" class="text-blue-600 hover:text-blue-800">→ Debt Yield Calculator</a>
-                    <a href="breakeven-occupancy-calculator.html" class="text-blue-600 hover:text-blue-800">→ Breakeven Occupancy Calculator</a>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-white border-t mt-16">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <p class="text-sm text-gray-600 text-center mb-4">
-                <strong>Disclaimer:</strong> CRE Tool Hub provides educational calculators for informational purposes only. This is not financial, investment, or legal advice. Consult qualified professionals before making investment decisions.
-            </p>
-            <div class="text-center text-sm text-gray-500 space-x-4">
-                <a href="#" class="hover:text-gray-700">Privacy Policy</a>
-                <span>·</span>
-                <a href="#" class="hover:text-gray-700">Terms of Use</a>
-                <span>·</span>
-                <a href="#" class="hover:text-gray-700">Contact</a>
-            </div>
-            <p class="text-center text-sm text-gray-500 mt-4">© 2026 CRE Tool Hub. All rights reserved.</p>
-        </div>
-    </footer>
-</body>
-</html>
+                        <div className="flex-shrink-0 px-4">
+                            <a href="index.html" className="text-3xl font-bold text-blue-600">CRE Tool Hub</a>
+                        </div>
+                        <div className="flex-1 flex justify-end">
+                            <nav className="flex items-center space-x-1">
+                                <a href="index.html" className={linkClasses('Home')}>Home</a>
+                                <div className="relative group">
+                                    <a href="cap-rate-calculator.html" className={`${linkClasses('Calculators')} flex items-center`}>
+                                        Calculators <svg className="ml-1 h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 0
