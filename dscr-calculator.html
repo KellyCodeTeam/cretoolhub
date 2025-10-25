@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DSCR Calculator | CRE Tool Hub</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-N5TV8E0CCL"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-N5TV8E0CCL');
+    </script>
+
+    <style>
+      body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+      .tooltip { position: relative; display: inline-block; }
+      .tooltip .tooltip-text { visibility: hidden; width: 250px; background-color: #333; color: #fff; text-align: left; border-radius: 6px; padding: 8px; position: absolute; z-index: 10; bottom: 125%; left: 50%; margin-left: -125px; opacity: 0; transition: opacity 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.2); font-size: 0.875rem; line-height: 1.25rem; font-weight: normal; }
+      .tooltip:hover .tooltip-text { visibility: visible; opacity: 1; }
+      .tooltip .tooltip-text::after { content: ""; position: absolute; top: 100%; left: 50%; margin-left: -5px; border-width: 5px; border-style: solid; border-color: #333 transparent transparent transparent; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div id="root"></div>
+    <script type="text/babel">
+      const { useState, useMemo, useEffect } = React;
+
+      // --- Shared Components ---
+      const HeaderAndNav = ({ activePage }) => {
+        const [isMenuOpen, setIsMenuOpen] = useState(false);
+        const navLinks = [ { name: 'Home', href: 'index.html' }, { name: 'Calculators', href: 'cap-rate-calculator.html' }, { name: 'Blog', href: '#' }, { name: 'About', href: '#' } ];
+        const linkClasses = (page) => `px-3 py-2 rounded-md text-sm font-medium transition-colors ${ activePage === page.name ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100' }`;
+        return (
+            <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-200">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex items-center justify-between h-16">
+                        <div className="flex items-center">
+                            <div className="flex-shrink-0"><a href="index.html" className="text-xl font-bold text-blue-600">CRE Tool Hub</a></div>
+                        </div>
+                        <div className="hidden md:block">
+                            <div className="ml-10 flex items-baseline space-x-4">
+                                {navLinks.map(link => <a key={link.name} href={link.href} className={linkClasses(link)}>{link.name}</a>)}
+                            </div>
+                        </div>
+                        <div className="-mr-2 flex md:hidden">
+                            <button onClick={() => setIsMenuOpen(!isMenuOpen)} type="button" className="bg-gray-100 inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-200 focus:outline-none" aria-controls="mobile-menu" aria-expanded="false">
+                                <span className="sr-only">Open main menu</span>
+                                {!isMenuOpen ? (<svg className="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" /></svg>) : (<svg className="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>)}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {isMenuOpen && (<div className="md:hidden" id="mobile-menu"><div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">{navLinks.map(link => <a key={link.name} href={link.href} className={`block ${linkClasses(link)}`}>{link.name}</a>)}</div></div>)}
+            </header>
+        );
+      };
+      const Footer = () => (
+        <footer className="bg-white border-t border-gray-200"><div className="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center text-gray-500"><p className="text-xs max-w-3xl mx-auto"><strong>Disclaimer:</strong> CRE Tool Hub provides educational calculators for informational purposes only. This is not financial, investment, or legal advice. Consult qualified professionals before making investment decisions.</p><div className="mt-4 flex justify-center space-x-4 text-xs"><a href="#" className="hover:text-gray-700">Privacy Policy</a><span>&middot;</span><a href="#" className="hover:text-gray-700">Terms of Use</a><span>&middot;</span><a href="#" className="hover:text-gray-700">Contact</a></div><p className="mt-4 text-xs">&copy; {new Date().getFullYear() + 1} CRE Tool Hub. All rights reserved.</p></div></footer>
+      );
+      const InfoTooltip = ({ text }) => (<span className="tooltip ml-1 text-gray-400 cursor-help"><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 inline-block" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg><span className="tooltip-text">{text}</span></span>);
+      const AdPlaceholder = ({ widthClass, heightClass }) => (<div className={`bg-gray-100 flex items-center justify-center mx-auto rounded-md border-2 border-dashed border-gray-300 ${widthClass} ${heightClass}`}><div className="text-center"><span className="text-gray-500 text-sm block">Advertisement</span></div></div>);
+      const AffiliateCard = ({ title, description, cta }) => (<div className="border border-gray-200 bg-white rounded-lg p-4 flex flex-col md:flex-row justify-between items-center space-y-3 md:space-y-0 md:space-x-4"><div className="text-center md:text-left"><h4 className="font-semibold text-gray-800">{title}</h4><p className="text-sm text-gray-500">{description}</p></div><button className="bg-blue-600 text-white hover:bg-blue-700 text-sm font-semibold py-2 px-4 rounded-md transition-colors w-full md:w-auto flex-shrink-0">{cta}</button></div>);
+      const AccordionItem = ({ question, answer }) => {
+        const [isOpen, setIsOpen] = useState(false);
+        return (<div className="py-4"><button onClick={() => setIsOpen(!isOpen)} className="w-full flex justify-between items-center text-left text-gray-800 focus:outline-none"><span className="font-semibold">{question}</span><svg className={`w-5 h-5 transform transition-transform duration-200 ${isOpen ? 'rotate-180' : 'rotate-0'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg></button>{isOpen && (<div className="mt-3 text-gray-600 prose max-w-none"><p>{answer}</p></div>)}</div>);
+      };
+      
+      const DscrCalculator = ({ noi, setNoi, debtService, setDebtService, dscr }) => {
+        const [showFormula, setShowFormula] = useState(false);
+        const [copyStatus, setCopyStatus] = useState(false);
+
+        const handleShare = () => {
+            const params = new URLSearchParams();
+            params.set('tool', 'dscr');
+            params.set('noi', noi);
+            params.set('debt', debtService);
+            const newUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+            navigator.clipboard.writeText(newUrl).then(() => {
+                setCopyStatus(true);
+                setTimeout(() => setCopyStatus(false), 2000);
+            });
+        };
+
+        const sensitivity = useMemo(() => {
+            const numNoi = parseFloat(noi) || 0;
+            const numDebtService = parseFloat(debtService) || 0;
+            if (numDebtService === 0) return {};
+            return {
+                noiMinus10: ((numNoi * 0.9) / numDebtService),
+                noiPlus10: ((numNoi * 1.1) / numDebtService),
+                debtMinus10: numDebtService * 0.9 === 0 ? Infinity : (numNoi / (numDebtService * 0.9)),
+                debtPlus10: numDebtService * 1.1 === 0 ? Infinity : (numNoi / (numDebtService * 1.1)),
+            }
+        }, [noi, debtService]);
+
+        return (
+          <div className="p-4 md:p-6 bg-white border border-gray-200 rounded-lg">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-600">Net Operating Income (NOI) <InfoTooltip text="Annual income after all operating expenses, excluding debt payments and taxes." /></label>
+                  <input type="number" value={noi} onChange={e => setNoi(e.target.value)} className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 text-gray-900 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"/>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-600">Total Debt Service <InfoTooltip text="Total annual loan payments, including both principal and interest." /></label>
+                  <input type="number" value={debtService} onChange={e => setDebtService(e.target.value)} className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 text-gray-900 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"/>
+                </div>
+              </div>
+              <div className="mt-4 md:mt-0 md:ml-6 flex flex-col items-center justify-center bg-gray-50 p-6 rounded-lg shadow-inner h-full">
+                <span className="text-sm font-medium text-gray-500">DSCR</span>
+                <p className="text-4xl md:text-5xl font-bold text-blue-600 my-1">{dscr.toFixed(2)}x</p>
+                <p className="text-xs text-gray-400">Formula: NOI / Debt Service</p>
+              </div>
+            </div>
+            <div className="mt-6 flex flex-col md:flex-row gap-3">
+                <button onClick={handleShare} className="bg-blue-600 text-white hover:bg-blue-700 text-sm font-semibold py-2 px-4 rounded-md transition-colors flex-1">{copyStatus ? 'Link Copied!' : 'Share This Calculation'}</button>
+                <button onClick={() => setShowFormula(!showFormula)} className="bg-gray-200 text-gray-700 hover:bg-gray-300 text-sm font-semibold py-2 px-4 rounded-md transition-colors flex-1">{showFormula ? 'Hide' : 'Show'} Formula & Sensitivity</button>
+            </div>
+            {showFormula && (<div className="mt-4 bg-blue-50 border-l-4 border-blue-300 p-4 rounded-md text-sm text-gray-800 space-y-3"><p><strong className="font-semibold">Formula:</strong> DSCR = Net Operating Income (NOI) ÷ Total Debt Service</p><div><strong className="font-semibold">Sensitivity Analysis (±10%):</strong><ul className="list-disc list-inside mt-1 text-gray-700"><li><strong>Base DSCR:</strong> {dscr.toFixed(2)}x</li><li>If NOI changes: -10% → {sensitivity.noiMinus10.toFixed(2)}x | +10% → {sensitivity.noiPlus10.toFixed(2)}x</li><li>If Debt changes: -10% → {sensitivity.debtMinus10.toFixed(2)}x | +10% → {sensitivity.debtPlus10.toFixed(2)}x</li></ul></div></div>)}
+          </div>
+        );
+      };
+
+      // --- Page Specific Component ---
+      const DscrPage = () => {
+        const [noi, setNoi] = useState('75000');
+        const [debtService, setDebtService] = useState('60000');
+        
+        useEffect(() => {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('noi')) setNoi(params.get('noi'));
+            if (params.get('debt')) setDebtService(params.get('debt'));
+        }, []);
+
+        const dscr = useMemo(() => {
+          const numNoi = parseFloat(noi);
+          const numDebtService = parseFloat(debtService);
+          if (isNaN(numNoi) || isNaN(numDebtService) || numDebtService === 0) return 0;
+          return numNoi / numDebtService;
+        }, [noi, debtService]);
+        
+        const getDscrInterpretation = (rate) => {
+            if (rate < 1.0) return "would not qualify";
+            if (rate >= 1.0 && rate < 1.25) return "barely qualifies and is considered high-risk";
+            if (rate >= 1.25 && rate < 1.35) return "meets industry standards";
+            return "exceeds standards and indicates strong financial health";
+        };
+        const interpretationText = getDscrInterpretation(dscr);
+        
+        const faqs = [ { question: "How does DSCR affect loan approval?", answer: "DSCR is one of the most critical metrics lenders use to underwrite a commercial loan. It directly measures the property's ability to generate enough income to cover its debt payments. Most lenders have a strict minimum DSCR, typically 1.25x, and a property that falls below this threshold will likely be denied financing." }, { question: "Why is 1.25 the industry standard for DSCR?", answer: "A DSCR of 1.25x means the property's Net Operating Income is 125% of its total debt service. This 25% cushion provides the lender with a margin of safety. It ensures that even if income decreases or expenses increase unexpectedly, the property can still comfortably make its loan payments, reducing the risk of default for the lender." }, { question: "How can I improve my DSCR?", answer: "There are two ways to improve DSCR: increase NOI or decrease debt service. You can increase NOI by raising rents, reducing vacancy, or cutting operating expenses. You can decrease debt service by making a larger down payment (reducing the loan amount), securing a lower interest rate, or extending the loan's amortization period." }, ];
+
+        return (
+            <div className="bg-gray-50 text-gray-800 min-h-screen">
+                <HeaderAndNav activePage="Calculators" />
+                <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+                     <nav className="text-sm mb-4" aria-label="Breadcrumb"><ol className="list-none p-0 inline-flex">
+                        <li className="flex items-center"><a href="index.html" className="text-gray-500 hover:text-blue-600">Home</a><svg className="fill-current w-3 h-3 mx-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z"/></svg></li>
+                        <li><span className="text-gray-700 font-medium">DSCR Calculator</span></li></ol>
+                    </nav>
+
+                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900">DSCR Calculator</h1>
+                     <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <div className="lg:col-span-2">
+                           <DscrCalculator noi={noi} setNoi={setNoi} debtService={debtService} setDebtService={setDebtService} dscr={dscr} />
+                           
+                           {parseFloat(debtService) > 0 && (
+                                <div className="mt-6 bg-white p-6 rounded-lg border border-gray-200">
+                                    <h3 className="text-xl font-bold text-gray-900">🏦 Lender Requirements</h3>
+                                    <div className="mt-4 space-y-2 text-gray-700">
+                                        <p>Your DSCR of <strong>{dscr.toFixed(2)}x</strong> {interpretationText} for most commercial loans.</p>
+                                        <ul className="list-disc list-inside space-y-1 pl-2 text-sm text-gray-600">
+                                            <li><strong>Below 1.0x:</strong> Not enough income to cover debt (won't qualify).</li>
+                                            <li><strong>1.0x - 1.15x:</strong> Risky, most lenders won't approve.</li>
+                                            <li><strong>1.25x:</strong> Minimum for most commercial lenders (industry standard).</li>
+                                            <li><strong>1.35x - 1.50x:</strong> Strong coverage, favorable loan terms likely.</li>
+                                            <li><strong>Above 1.50x:</strong> Excellent coverage, best rates available.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            )}
+
+                           <div className="mt-6 bg-blue-50 border-l-4 border-blue-400 p-4 rounded-md">
+                               <p><strong className="font-semibold text-blue-800">💡 Pro Tip:</strong> Lenders typically require a 1.25x DSCR minimum, but loan terms (like interest rate) improve significantly at 1.35x and above. Consider putting 5-10% more down to reach better coverage ratios and secure lower financing costs.</p>
+                           </div>
+
+                           <div className="mt-8 prose max-w-none text-gray-700 bg-white p-6 rounded-lg border border-gray-200">
+                                <h2 className="text-2xl font-bold text-gray-900">Understanding DSCR</h2>
+                                <p>The Debt Service Coverage Ratio (DSCR) is a measure of the cash flow available to pay current debt obligations. The ratio states net operating income as a multiple of debt obligations due within one year, including interest and principal. It is a popular benchmark used in the measurement of an entity's (person or corporation) ability to produce enough cash to cover its debt payments.</p>
+                                <h3>What Lenders Look For</h3>
+                                <p>From a lender's perspective, DSCR is a primary indicator of a property's financial health and its ability to repay a loan. The formula is simple: <strong>DSCR = Net Operating Income / Total Debt Service</strong>. A DSCR of exactly 1.0x means the property generates just enough income to cover its mortgage payments, leaving no room for error. Lenders need a cushion to protect against vacancies or unexpected expenses.</p>
+                                <h3>Why 1.25 is the Standard</h3>
+                                <p>The industry standard minimum DSCR for most commercial properties is 1.25x. This means the property's NOI must be 125% of its annual debt payments. This 25% buffer gives the lender confidence that the loan will be paid even if performance dips slightly. Properties with a stronger, more stable income stream (like a multifamily building with a long history of high occupancy) might sometimes qualify with a slightly lower DSCR, while riskier assets (like a hotel or specialized retail) may require a higher DSCR of 1.35x or more.</p>
+                                <p>Achieving a DSCR well above the minimum is highly beneficial for the borrower. A higher DSCR signals lower risk to the lender, which often translates into more favorable loan terms, such as a lower interest rate, a higher loan-to-value (LTV) ratio, or a longer amortization period, all of which can improve the investment's overall return.</p>
+                           </div>
+
+                           <div className="mt-8 bg-white p-6 rounded-lg border border-gray-200">
+                                <h3 className="text-2xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h3>
+                                <div className="space-y-3 border-t border-gray-200 divide-y divide-gray-200">
+                                    {faqs.map((faq, index) => <AccordionItem key={index} question={faq.question} answer={faq.answer} />)}
+                                </div>
+                           </div>
+                        </div>
+
+                        <aside className="space-y-6">
+                            <AdPlaceholder widthClass="w-[300px]" heightClass="h-[250px]" />
+                            <AffiliateCard title="Compare Lenders" description="Find the best financing options." cta="Compare lenders" />
+                            <AdPlaceholder widthClass="w-[300px]" heightClass="h-[250px]" />
+                            <AffiliateCard title="Property Management Suite" description="Streamline your operations." cta="Free trial" />
+                        </aside>
+                    </div>
+                     <div className="mt-8"><AdPlaceholder widthClass="w-full max-w-[728px]" heightClass="h-[90px]" /></div>
+                </main>
+                <Footer />
+            </div>
+        );
+      };
+      
+      const root = ReactDOM.createRoot(document.getElementById('root'));
+      root.render(<DscrPage />);
+    </script>
+</body>
+</html>
