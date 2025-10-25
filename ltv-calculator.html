@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Loan-to-Value (LTV) Calculator | CRE Tool Hub</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-N5TV8E0CCL"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-N5TV8E0CCL');
+    </script>
+
+    <style>
+      body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+      .tooltip { position: relative; display: inline-block; }
+      .tooltip .tooltip-text { visibility: hidden; width: 250px; background-color: #333; color: #fff; text-align: left; border-radius: 6px; padding: 8px; position: absolute; z-index: 10; bottom: 125%; left: 50%; margin-left: -125px; opacity: 0; transition: opacity 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.2); font-size: 0.875rem; line-height: 1.25rem; font-weight: normal; }
+      .tooltip:hover .tooltip-text { visibility: visible; opacity: 1; }
+      .tooltip .tooltip-text::after { content: ""; position: absolute; top: 100%; left: 50%; margin-left: -5px; border-width: 5px; border-style: solid; border-color: #333 transparent transparent transparent; }
+      .dropdown { visibility: hidden; opacity: 0; transition: visibility 0.1s linear, opacity 0.1s linear; }
+      .group:hover .dropdown { visibility: visible; opacity: 1; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div id="root"></div>
+    <script type="text/babel">
+      const { useState, useMemo, useEffect } = React;
+
+      // --- Shared Components ---
+      const HeaderAndNav = ({ activePage }) => {
+        const [isMenuOpen, setIsMenuOpen] = useState(false);
+        const navLinks = [ { name: 'Home', href: 'index.html' }, { name: 'Blog', href: '#' }, { name: 'About', href: '#' } ];
+        const calculatorLinks = [
+            { name: 'Cap Rate Calculator', href: 'cap-rate-calculator.html' }, { name: 'NOI Builder', href: 'noi-builder.html' }, { name: 'Cash-on-Cash Calculator', href: 'cash-on-cash-calculator.html' }, { name: 'DSCR Calculator', href: 'dscr-calculator.html' }, { name: 'Loan-to-Value (LTV) Calculator', href: 'ltv-calculator.html' }, { name: 'Debt Yield Calculator', href: 'debt-yield-calculator.html' }, { name: 'Breakeven Occupancy Calculator', href: 'breakeven-occupancy-calculator.html' },
+        ];
+        const linkClasses = (page) => `px-3 py-2 rounded-md text-sm font-medium transition-colors ${ activePage === page ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100' }`;
+        return (
+            <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-200">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex items-center justify-between h-16">
+                        <div className="flex items-center"><a href="index.html" className="text-xl font-bold text-blue-600">CRE Tool Hub</a></div>
+                        <div className="hidden md:block">
+                            <div className="ml-10 flex items-baseline space-x-4">
+                                <a href="index.html" className={linkClasses('Home')}>Home</a>
+                                <div className="relative group">
+                                    <a href="cap-rate-calculator.html" className={`${linkClasses('Calculators')} flex items-center`}>
+                                        Calculators <svg className="ml-1 h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
+                                    </a>
+                                    <div className="dropdown absolute left-0 mt-2 w-64 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10"><div className="py-1">{calculatorLinks.map(link => (<a key={link.name} href={link.href} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">{link.name}</a>))}</div></div>
+                                </div>
+                                {navLinks.slice(1).map(link => <a key={link.name} href={link.href} className={linkClasses(link.name)}>{link.name}</a>)}
+                            </div>
+                        </div>
+                        <div className="-mr-2 flex md:hidden">
+                            <button onClick={() => setIsMenuOpen(!isMenuOpen)} type="button" className="bg-gray-100 inline-flex items-center justify-center p-2 rounded-md text-gray-600 focus:outline-none"><span className="sr-only">Open main menu</span>
+                                {!isMenuOpen ? (<svg className="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" /></svg>) : (<svg className="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>)}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {isMenuOpen && (<div className="md:hidden"><div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                    <a href="index.html" className={`block ${linkClasses('Home')}`}>Home</a>
+                    <div className="relative group"><a href="cap-rate-calculator.html" className={`block ${linkClasses('Calculators')}`}>Calculators</a><div className="mt-1 space-y-1 pl-4">{calculatorLinks.map(link => (<a key={link.name} href={link.href} className="block px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-100">{link.name}</a>))}</div></div>
+                    {navLinks.slice(1).map(link => <a key={link.name} href={link.href} className={`block ${linkClasses(link.name)}`}>{link.name}</a>)}
+                </div></div>)}
+            </header>
+        );
+      };
+      const Footer = () => (
+        <footer className="bg-white border-t border-gray-200"><div className="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center text-gray-500"><p className="text-xs max-w-3xl mx-auto"><strong>Disclaimer:</strong> CRE Tool Hub provides educational calculators for informational purposes only. This is not financial, investment, or legal advice. Consult qualified professionals before making investment decisions.</p><div className="mt-4 flex justify-center space-x-4 text-xs"><a href="#" className="hover:text-gray-700">Privacy Policy</a><span>&middot;</span><a href="#" className="hover:text-gray-700">Terms of Use</a><span>&middot;</span><a href="#" className="hover:text-gray-700">Contact</a></div><p className="mt-4 text-xs">&copy; {new Date().getFullYear() + 1} CRE Tool Hub. All rights reserved.</p></div></footer>
+      );
+      const InfoTooltip = ({ text }) => (<span className="tooltip ml-1 text-gray-400 cursor-help"><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 inline-block" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg><span className="tooltip-text">{text}</span></span>);
+      const AdPlaceholder = ({ widthClass, heightClass }) => (<div className={`bg-gray-100 flex items-center justify-center mx-auto rounded-md border-2 border-dashed border-gray-300 ${widthClass} ${heightClass}`}><div className="text-center"><span className="text-gray-500 text-sm block">Advertisement</span></div></div>);
+      const AffiliateCard = ({ title, description, cta }) => (<div className="border border-gray-200 bg-white rounded-lg p-4 flex flex-col md:flex-row justify-between items-center space-y-3 md:space-y-0 md:space-x-4"><div className="text-center md:text-left"><h4 className="font-semibold text-gray-800">{title}</h4><p className="text-sm text-gray-500">{description}</p></div><button className="bg-blue-600 text-white hover:bg-blue-700 text-sm font-semibold py-2 px-4 rounded-md transition-colors w-full md:w-auto flex-shrink-0">{cta}</button></div>);
+      const AccordionItem = ({ question, answer }) => {
+        const [isOpen, setIsOpen] = useState(false);
+        return (<div className="py-4"><button onClick={() => setIsOpen(!isOpen)} className="w-full flex justify-between items-center text-left text-gray-800 focus:outline-none"><span className="font-semibold">{question}</span><svg className={`w-5 h-5 transform transition-transform duration-200 ${isOpen ? 'rotate-180' : 'rotate-0'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg></button>{isOpen && (<div className="mt-3 text-gray-600 prose max-w-none"><p>{answer}</p></div>)}</div>);
+      };
+      
+      const LtvCalculator = ({ loanAmount, setLoanAmount, propertyValue, setPropertyValue, ltv, handleDownloadPdf }) => {
+        const [showFormula, setShowFormula] = useState(false);
+        const [copyStatus, setCopyStatus] = useState(false);
+
+        const handleShare = () => {
+            const params = new URLSearchParams();
+            params.set('tool', 'ltv');
+            params.set('loan', loanAmount);
+            params.set('value', propertyValue);
+            const newUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+            navigator.clipboard.writeText(newUrl).then(() => {
+                setCopyStatus(true);
+                setTimeout(() => setCopyStatus(false), 2000);
+            });
+        };
+
+        return (
+          <div className="p-4 md:p-6 bg-white border border-gray-200 rounded-lg">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-600">Loan Amount <InfoTooltip text="Total amount you're borrowing from the lender." /></label>
+                  <input type="number" value={loanAmount} onChange={e => setLoanAmount(e.target.value)} className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 text-gray-900 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"/>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-600">Property Value <InfoTooltip text="Purchase price or appraised value of the property." /></label>
+                  <input type="number" value={propertyValue} onChange={e => setPropertyValue(e.target.value)} className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 text-gray-900 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"/>
+                </div>
+              </div>
+              <div className="mt-4 md:mt-0 md:ml-6 flex flex-col items-center justify-center bg-gray-50 p-6 rounded-lg shadow-inner h-full">
+                <span className="text-sm font-medium text-gray-500">Loan-to-Value (LTV)</span>
+                <p className="text-4xl md:text-5xl font-bold text-blue-600 my-1">{ltv.toFixed(2)}%</p>
+                <p className="text-xs text-gray-400">Formula: (Loan / Value) x 100</p>
+              </div>
+            </div>
+            <div className="mt-6 flex flex-col md:flex-row md:flex-wrap gap-3">
+                <button onClick={handleShare} className="bg-blue-600 text-white hover:bg-blue-700 text-sm font-semibold py-2 px-4 rounded-md transition-colors flex-1">{copyStatus ? 'Link Copied!' : 'Share This Calculation'}</button>
+                <button onClick={() => setShowFormula(!showFormula)} className="bg-gray-200 text-gray-700 hover:bg-gray-300 text-sm font-semibold py-2 px-4 rounded-md transition-colors flex-1">{showFormula ? 'Hide' : 'Show'} Formula</button>
+                <button onClick={handleDownloadPdf} className="border border-gray-300 text-gray-700 hover:bg-gray-100 text-sm font-semibold py-2 px-4 rounded-md transition-colors w-full md:w-auto flex-grow">Download PDF Report</button>
+            </div>
+            {showFormula && (<div className="mt-4 bg-blue-50 border-l-4 border-blue-300 p-4 rounded-md text-sm text-gray-800"><p><strong className="font-semibold">Formula:</strong> LTV = (Loan Amount ÷ Property Value) × 100</p></div>)}
+          </div>
+        );
+      };
+
+      // --- Page Specific Component ---
+      const LtvPage = () => {
+        const [loanAmount, setLoanAmount] = useState('750000');
+        const [propertyValue, setPropertyValue] = useState('1000000');
+        
+        useEffect(() => {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('loan')) setLoanAmount(params.get('loan'));
+            if (params.get('value')) setPropertyValue(params.get('value'));
+        }, []);
+
+        const ltv = useMemo(() => {
+          const numLoan = parseFloat(loanAmount);
+          const numValue = parseFloat(propertyValue);
+          if (isNaN(numLoan) || isNaN(numValue) || numValue === 0) return 0;
+          return (numLoan / numValue) * 100;
+        }, [loanAmount, propertyValue]);
+        
+        const getLtvInterpretation = (rate) => {
+            if (rate < 65) return "is excellent";
+            if (rate >= 65 && rate <= 75) return "is within standard range";
+            if (rate > 75 && rate <= 80) return "is at maximum";
+            if (rate > 80) return "exceeds typical limits";
+            return "is within standard range";
+        };
+        const interpretationText = `Your ${ltv.toFixed(2)}% LTV ${getLtvInterpretation(ltv)} for commercial financing.`;
+        const faqs = [ { question: "What is a good LTV for commercial real estate?", answer: "Most lenders consider an LTV between 65% and 75% to be good. An LTV below 65% is excellent and will likely secure the best interest rates and terms. Anything above 75% is considered higher risk." }, { question: "How does LTV differ from loan-to-cost (LTC)?", answer: "LTV is based on the appraised value of a stabilized property. Loan-to-Cost (LTC) is used for construction and development projects and is based on the total project cost. Lenders often have separate limits for LTV and LTC." }, { question: "Can I refinance to a higher LTV?", answer: "Possibly. If the property's value has increased since purchase, you may be able to do a 'cash-out' refinance to a new loan with a higher amount, as long as the new LTV remains within the lender's acceptable limits (typically 75%)." }, { question: "Do lenders use purchase price or appraised value?", answer: "Lenders will use the lesser of the purchase price or the appraised value to calculate LTV. This prevents them from overlending on a property if the purchase price is higher than what the market appraisal supports." }, ];
+
+        const handleDownloadPdf = () => {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const today = new Date().toLocaleDateString();
+
+            doc.setFontSize(18); doc.setFont("helvetica", "bold"); doc.text("CRE Tool Hub", 105, 20, null, null, "center");
+            doc.setFontSize(16); doc.setFont("helvetica", "normal"); doc.text("LTV Calculator Report", 105, 30, null, null, "center");
+            doc.setFontSize(10); doc.text(`Date: ${today}`, 105, 36, null, null, "center");
+            doc.setLineWidth(0.5); doc.line(20, 45, 190, 45);
+
+            doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.text("Inputs:", 20, 55);
+            doc.setFont("helvetica", "normal");
+            doc.text(`Loan Amount: $${parseFloat(loanAmount || 0).toLocaleString()}`, 20, 62);
+            doc.text(`Property Value: $${parseFloat(propertyValue || 0).toLocaleString()}`, 20, 69);
+            
+            doc.line(20, 78, 190, 78);
+            
+            doc.setFont("helvetica", "bold"); doc.text("Result:", 20, 88);
+            doc.setFont("helvetica", "normal");
+            doc.text(`Loan-to-Value (LTV): ${ltv.toFixed(2)}%`, 20, 95);
+            doc.text("Formula: (Loan Amount / Property Value) x 100", 20, 102);
+            
+            doc.line(20, 111, 190, 111);
+
+            doc.setFont("helvetica", "bold"); doc.text("Interpretation:", 20, 121);
+            doc.setFont("helvetica", "normal");
+            const interpretationLines = doc.splitTextToSize(interpretationText, 170);
+            doc.text(interpretationLines, 20, 128);
+            
+            doc.line(20, 260, 190, 260);
+            doc.setFontSize(8); doc.setTextColor(150);
+            doc.text("This calculation is for educational purposes only...", 105, 265, null, null, "center");
+            doc.text("Powered by CREToolHub.com | Visit: kellycodeteam.github.io/cretoolhub", 105, 270, null, null, "center");
+
+            doc.save("ltv-report.pdf");
+        };
+
+        return (
+            <div className="bg-gray-50 text-gray-800 min-h-screen">
+                <HeaderAndNav activePage="Calculators" />
+                <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+                     <nav className="text-sm mb-4"><ol className="list-none p-0 inline-flex"><li className="flex items-center"><a href="index.html" className="text-gray-500 hover:text-blue-600">Home</a><svg className="fill-current w-3 h-3 mx-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z"/></svg></li><li><span className="text-gray-700 font-medium">LTV Calculator</span></li></ol></nav>
+
+                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900">Loan-to-Value Calculator — Instant</h1>
+                     <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <div className="lg:col-span-2">
+                           <LtvCalculator loanAmount={loanAmount} setLoanAmount={setLoanAmount} propertyValue={propertyValue} setPropertyValue={setPropertyValue} ltv={ltv} handleDownloadPdf={handleDownloadPdf} />
+                           
+                           {parseFloat(propertyValue) > 0 && (
+                                <div className="mt-6 bg-white p-6 rounded-lg border border-gray-200">
+                                    <h3 className="text-xl font-bold text-gray-900">🏦 Understanding LTV Requirements</h3>
+                                    <div className="mt-4 space-y-2 text-gray-700">
+                                        <p>{interpretationText}</p>
+                                        <ul className="list-disc list-inside space-y-1 pl-2 text-sm text-gray-600">
+                                            <li><strong>Below 65%:</strong> Excellent - lowest rates, best terms available.</li>
+                                            <li><strong>65-75%:</strong> Strong - standard commercial loan territory, favorable rates.</li>
+                                            <li><strong>75-80%:</strong> Maximum for most lenders - higher rates, stricter requirements.</li>
+                                            <li><strong>80%+:</strong> High risk - very few lenders, expensive financing.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            )}
+
+                           <div className="mt-6 bg-blue-50 border-l-4 border-blue-400 p-4 rounded-md">
+                               <p><strong className="font-semibold text-blue-800">💡 Pro Tip:</strong> Most commercial lenders cap LTV at 75-80% depending on property type. Multifamily often gets 80%, while office and retail may be limited to 75%. Plan to have at least 20-25% down payment ready.</p>
+                           </div>
+
+                           <div className="mt-8 prose max-w-none text-gray-700 bg-white p-6 rounded-lg border border-gray-200">
+                                <h2 className="text-2xl font-bold text-gray-900">What is Loan-to-Value (LTV)?</h2>
+                                <p>Loan-to-Value (LTV) is a financial term used by lenders to express the ratio of a loan to the value of an asset purchased. In commercial real estate, it represents the percentage of a property's value that a lender is willing to finance. It is one of the primary risk assessment tools used by underwriters. A higher LTV represents a higher risk for the lender, as the borrower has less equity ("skin in the game").</p>
+                                
+                                <h3>Maximum LTV by Property Type</h3>
+                                <div className="overflow-x-auto my-6"><table className="min-w-full divide-y divide-gray-200 border border-gray-200 text-sm"><thead><tr className="bg-gray-50"><th className="px-4 py-2 text-left font-medium text-gray-600">Property Type</th><th className="px-4 py-2 text-left font-medium text-gray-600">Typical Max LTV</th><th className="px-4 py-2 text-left font-medium text-gray-600">Best Case (Strong Deal)</th></tr></thead><tbody className="bg-white divide-y divide-gray-200"><tr><td className="px-4 py-2 font-medium text-gray-800">Multifamily</td><td className="px-4 py-2">75-80%</td><td className="px-4 py-2">80-85%</td></tr><tr className="bg-gray-50"><td className="px-4 py-2 font-medium text-gray-800">Office</td><td className="px-4 py-2">65-75%</td><td className="px-4 py-2">75-80%</td></tr><tr><td className="px-4 py-2 font-medium text-gray-800">Retail</td><td className="px-4 py-2">70-75%</td><td className="px-4 py-2">75-80%</td></tr><tr className="bg-gray-50"><td className="px-4 py-2 font-medium text-gray-800">Industrial</td><td className="px-4 py-2">70-80%</td><td className="px-4 py-2">75-85%</td></tr></tbody></table></div>
+                                
+                                <p>Generally, a lower LTV is more favorable for lenders and can result in a lower interest rate for the borrower. To improve your LTV, you can either make a larger down payment, which reduces the loan amount, or find ways to increase the property's appraised value through strategic improvements or by negotiating a lower purchase price.</p>
+                           </div>
+
+                           <div className="mt-8 bg-white p-6 rounded-lg border border-gray-200">
+                                <h3 className="text-2xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h3>
+                                <div className="space-y-3 border-t border-gray-200 divide-y divide-gray-200">
+                                    {faqs.map((faq, index) => <AccordionItem key={index} question={faq.question} answer={faq.answer} />)}
+                                </div>
+                           </div>
+                        </div>
+
+                        <aside className="space-y-6">
+                            <AdPlaceholder widthClass="w-[300px]" heightClass="h-[250px]" />
+                            <AffiliateCard title="Compare Lenders" description="Find the best financing options." cta="Compare lenders" />
+                        </aside>
+                    </div>
+                     <div className="mt-8"><AdPlaceholder widthClass="w-full max-w-[728px]" heightClass="h-[90px]" /></div>
+                </main>
+                <Footer />
+            </div>
+        );
+      };
+      
+      const root = ReactDOM.createRoot(document.getElementById('root'));
+      root.render(<LtvPage />);
+    </script>
+</body>
+</html>
