@@ -163,6 +163,27 @@
             "Share calculations via URL with partners and lenders"
         ];
 
+        const blogPosts = [
+            {
+                title: 'How to Calculate Cap Rate: A Complete Guide',
+                href: 'how-to-calculate-cap-rate.html',
+                category: { name: 'Valuation' },
+                description: 'Dive deep into the most fundamental metric in commercial real estate. Learn the formula, what makes a good cap rate, and common mistakes to avoid.',
+            },
+            {
+                title: 'Understanding DSCR for Commercial Loans',
+                href: 'dscr-calculator-guide.html',
+                category: { name: 'Financing' },
+                description: 'The Debt Service Coverage Ratio is critical for loan approval. Learn why lenders care about it and how to improve your ratio to secure better financing terms.',
+            },
+            {
+                title: 'Building Your Net Operating Income (NOI)',
+                href: 'noi-calculator-guide.html',
+                category: { name: 'Analysis' },
+                description: 'NOI is the foundation of CRE analysis. Our step-by-step guide shows you what to include, what to exclude, and why it’s the most important number in your analysis.',
+            },
+        ];
+
         return (
           <div className="bg-white">
             <HeaderAndNav activePage="Home" />
@@ -206,9 +227,41 @@
                   </div>
                 </div>
               </div>
+              
+              {/* Blog Section */}
+              <div className="relative bg-gray-50 pt-16 pb-20 px-4 sm:px-6 lg:pt-24 lg:pb-28 lg:px-8">
+                <div className="absolute inset-0"><div className="bg-white h-1/3 sm:h-2/3" /></div>
+                <div className="relative max-w-7xl mx-auto">
+                    <div className="text-center">
+                        <h2 className="text-3xl tracking-tight font-extrabold text-gray-900 sm:text-4xl">From the Blog</h2>
+                        <p className="mt-3 max-w-2xl mx-auto text-xl text-gray-500 sm:mt-4">Master the fundamentals of commercial real estate analysis.</p>
+                    </div>
+                    <div className="mt-12 max-w-lg mx-auto grid gap-5 lg:grid-cols-3 lg:max-w-none">
+                        {blogPosts.map((post) => (
+                            <div key={post.title} className="flex flex-col rounded-lg shadow-lg overflow-hidden">
+                                <div className="flex-1 bg-white p-6 flex flex-col justify-between">
+                                    <div className="flex-1">
+                                        <p className="text-sm font-medium text-blue-600">
+                                            <a href="#" className="hover:underline">{post.category.name}</a>
+                                        </p>
+                                        <a href={post.href} className="block mt-2">
+                                            <p className="text-xl font-semibold text-gray-900">{post.title}</p>
+                                            <p className="mt-3 text-base text-gray-500">{post.description}</p>
+                                        </a>
+                                    </div>
+                                    <div className="mt-6 flex items-center">
+                                      <a href={post.href} className="text-base font-semibold text-blue-600 hover:text-blue-500">Read full story</a>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+              </div>
+
 
               {/* Features Section */}
-              <div className="bg-gray-50">
+              <div className="bg-white">
                 <div className="max-w-6xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8">
                   <div className="max-w-3xl mx-auto text-center">
                     <h2 className="text-3xl font-extrabold text-gray-900">Why Use CRE Tool Hub?</h2>
