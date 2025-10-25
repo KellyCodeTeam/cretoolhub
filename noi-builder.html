@@ -39,7 +39,7 @@
       // --- Shared Components ---
       const HeaderAndNav = ({ activePage }) => {
         const [isMenuOpen, setIsMenuOpen] = useState(false);
-        const navLinks = [ { name: 'Home', href: 'index.html' }, { name: 'Blog', href: '#' }, { name: 'About', href: '#' } ];
+        const navLinks = [ { name: 'Home', href: 'index.html' }, { name: 'Blog', href: 'blog.html' }, { name: 'About', href: 'about.html' } ];
         const calculatorLinks = [
             { name: 'Cap Rate Calculator', href: 'cap-rate-calculator.html' }, { name: 'NOI Builder', href: 'noi-builder.html' }, { name: 'Cash-on-Cash Calculator', href: 'cash-on-cash-calculator.html' }, { name: 'DSCR Calculator', href: 'dscr-calculator.html' }, { name: 'Loan-to-Value (LTV) Calculator', href: 'ltv-calculator.html' }, { name: 'Debt Yield Calculator', href: 'debt-yield-calculator.html' }, { name: 'Breakeven Occupancy Calculator', href: 'breakeven-occupancy-calculator.html' },
         ];
@@ -53,7 +53,7 @@
                              <p className="text-sm text-gray-600">Free CRE calculators — client-side, no storage.</p>
                         </div>
                         <div className="flex-shrink-0 px-4">
-                            <a href="index.html" className="text-3xl font-bold text-blue-600">CRE Tool Hub</a>
+                            <a href="index.html" className="text-5xl font-bold text-blue-600">CRE Tool Hub</a>
                         </div>
                         <div className="flex-1 flex justify-end">
                             <nav className="flex items-center space-x-1">
@@ -71,7 +71,7 @@
                      {/* Mobile Header */}
                     <div className="md:hidden flex items-center justify-between h-16">
                         <div className="flex-shrink-0">
-                            <a href="index.html" className="text-2xl font-bold text-blue-600">CRE Tool Hub</a>
+                            <a href="index.html" className="text-4xl font-bold text-blue-600">CRE Tool Hub</a>
                         </div>
                         <div className="-mr-2 flex">
                             <button onClick={() => setIsMenuOpen(!isMenuOpen)} type="button" className="bg-gray-100 inline-flex items-center justify-center p-2 rounded-md text-gray-600 focus:outline-none"><span className="sr-only">Open main menu</span>
@@ -81,9 +81,13 @@
                     </div>
                 </div>
                 {isMenuOpen && (<div className="md:hidden"><div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                    <a href="index.html" className={`block ${linkClasses('Home')}`}>Home</a>
-                    <div className="relative group"><a href="cap-rate-calculator.html" className={`block ${linkClasses('Calculators')}`}>Calculators</a><div className="mt-1 space-y-1 pl-4">{calculatorLinks.map(link => (<a key={link.name} href={link.href} className="block px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-100">{link.name}</a>))}</div></div>
-                    {navLinks.slice(1).map(link => <a key={link.name} href={link.href} className={`block ${linkClasses(link.name)}`}>{link.name}</a>)}
+                    {navLinks.map(link => <a key={link.name} href={link.href} className={`block ${linkClasses(link.name)}`}>{link.name}</a>)}
+                    <div className="relative group pl-3 pt-2">
+                        <span className={`block text-gray-700`}>Calculators</span>
+                        <div className="mt-1 space-y-1 pl-4 border-l border-gray-200">
+                          {calculatorLinks.map(link => (<a key={link.name} href={link.href} className="block px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-100">{link.name}</a>))}
+                        </div>
+                     </div>
                 </div></div>)}
             </header>
         );
@@ -282,7 +286,7 @@
 
                             <div className="mt-8 prose max-w-none text-gray-700 bg-white p-6 rounded-lg border border-gray-200">
                                 <h2 className="text-2xl font-bold text-gray-900">What is Net Operating Income (NOI)?</h2>
-                                <p className="mb-4">Want a deeper dive? <a href="noi-calculator-guide.html" className="text-blue-600 font-semibold hover:underline">Read our Complete Guide to Building Your NOI.</a></p>
+                                <p className="mb-4">Want a deeper dive? <a href="blog/noi-calculator-guide.html" className="text-blue-600 font-semibold hover:underline">Read our Complete Guide to Building Your NOI.</a></p>
                                 <p>Net Operating Income (NOI) is a calculation used to analyze the profitability of income-generating real estate investments. NOI equals all revenue from the property, minus all reasonably necessary operating expenses. NOI is a before-tax figure, appearing on a property’s income and cash flow statement, that excludes principal and interest payments on loans, capital expenditures, depreciation, and amortization. When this metric is used in other industries, it is referred to as "EBIT" (earnings before interest and taxes).</p>
                                 <h3>What's Included and Excluded?</h3>
                                 <p>The formula is straightforward: <strong>NOI = (Gross Operating Income + Other Income) - Operating Expenses</strong>. It's critical to understand what constitutes an operating expense. These are the day-to-day costs of running the property.</p>
