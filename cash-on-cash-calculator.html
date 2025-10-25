@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cash-on-Cash Calculator | CRE Tool Hub</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-N5TV8E0CCL"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-N5TV8E0CCL');
+    </script>
+
+    <style>
+      body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+      .tooltip { position: relative; display: inline-block; }
+      .tooltip .tooltip-text { visibility: hidden; width: 250px; background-color: #333; color: #fff; text-align: left; border-radius: 6px; padding: 8px; position: absolute; z-index: 10; bottom: 125%; left: 50%; margin-left: -125px; opacity: 0; transition: opacity 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.2); font-size: 0.875rem; line-height: 1.25rem; font-weight: normal; }
+      .tooltip:hover .tooltip-text { visibility: visible; opacity: 1; }
+      .tooltip .tooltip-text::after { content: ""; position: absolute; top: 100%; left: 50%; margin-left: -5px; border-width: 5px; border-style: solid; border-color: #333 transparent transparent transparent; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div id="root"></div>
+    <script type="text/babel">
+      const { useState, useMemo, useEffect } = React;
+
+      // --- Shared Components ---
+      const HeaderAndNav = ({ activePage }) => {
+        const [isMenuOpen, setIsMenuOpen] = useState(false);
+        const navLinks = [ { name: 'Home', href: 'index.html' }, { name: 'Calculators', href: 'cap-rate-calculator.html' }, { name: 'Blog', href: '#' }, { name: 'About', href: '#' } ];
+        const linkClasses = (page) => `px-3 py-2 rounded-md text-sm font-medium transition-colors ${ activePage === page.name ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100' }`;
+        return (
+            <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-200">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex items-center justify-between h-16">
+                        <div className="flex items-center">
+                            <div className="flex-shrink-0"><a href="index.html" className="text-xl font-bold text-blue-600">CRE Tool Hub</a></div>
+                        </div>
+                        <div className="hidden md:block">
+                            <div className="ml-10 flex items-baseline space-x-4">
+                                {navLinks.map(link => <a key={link.name} href={link.href} className={linkClasses(link)}>{link.name}</a>)}
+                            </div>
+                        </div>
+                        <div className="-mr-2 flex md:hidden">
+                            <button onClick={() => setIsMenuOpen(!isMenuOpen)} type="button" className="bg-gray-100 inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-200 focus:outline-none" aria-controls="mobile-menu" aria-expanded="false">
+                                <span className="sr-only">Open main menu</span>
+                                {!isMenuOpen ? (<svg className="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" /></svg>) : (<svg className="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>)}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {isMenuOpen && (<div className="md:hidden" id="mobile-menu"><div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">{navLinks.map(link => <a key={link.name} href={link.href} className={`block ${linkClasses(link)}`}>{link.name}</a>)}</div></div>)}
+            </header>
+        );
+      };
+      const Footer = () => (
+        <footer className="bg-white border-t border-gray-200"><div className="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center text-gray-500"><p className="text-xs max-w-3xl mx-auto"><strong>Disclaimer:</strong> CRE Tool Hub provides educational calculators for informational purposes only. This is not financial, investment, or legal advice. Consult qualified professionals before making investment decisions.</p><div className="mt-4 flex justify-center space-x-4 text-xs"><a href="#" className="hover:text-gray-700">Privacy Policy</a><span>&middot;</span><a href="#" className="hover:text-gray-700">Terms of Use</a><span>&middot;</span><a href="#" className="hover:text-gray-700">Contact</a></div><p className="mt-4 text-xs">&copy; {new Date().getFullYear() + 1} CRE Tool Hub. All rights reserved.</p></div></footer>
+      );
+      const InfoTooltip = ({ text }) => (<span className="tooltip ml-1 text-gray-400 cursor-help"><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 inline-block" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg><span className="tooltip-text">{text}</span></span>);
+      const AdPlaceholder = ({ widthClass, heightClass }) => (<div className={`bg-gray-100 flex items-center justify-center mx-auto rounded-md border-2 border-dashed border-gray-300 ${widthClass} ${heightClass}`}><div className="text-center"><span className="text-gray-500 text-sm block">Advertisement</span></div></div>);
+      const AffiliateCard = ({ title, description, cta }) => (<div className="border border-gray-200 bg-white rounded-lg p-4 flex flex-col md:flex-row justify-between items-center space-y-3 md:space-y-0 md:space-x-4"><div className="text-center md:text-left"><h4 className="font-semibold text-gray-800">{title}</h4><p className="text-sm text-gray-500">{description}</p></div><button className="bg-blue-600 text-white hover:bg-blue-700 text-sm font-semibold py-2 px-4 rounded-md transition-colors w-full md:w-auto flex-shrink-0">{cta}</button></div>);
+      const AccordionItem = ({ question, answer }) => {
+        const [isOpen, setIsOpen] = useState(false);
+        return (<div className="py-4"><button onClick={() => setIsOpen(!isOpen)} className="w-full flex justify-between items-center text-left text-gray-800 focus:outline-none"><span className="font-semibold">{question}</span><svg className={`w-5 h-5 transform transition-transform duration-200 ${isOpen ? 'rotate-180' : 'rotate-0'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg></button>{isOpen && (<div className="mt-3 text-gray-600 prose max-w-none"><p>{answer}</p></div>)}</div>);
+      };
+      
+      const CashOnCashCalculator = ({ cashFlow, setCashFlow, cashInvested, setCashInvested, cocReturn }) => {
+        const [showFormula, setShowFormula] = useState(false);
+        const [copyStatus, setCopyStatus] = useState(false);
+
+        const handleShare = () => {
+            const params = new URLSearchParams();
+            params.set('tool', 'coc');
+            params.set('flow', cashFlow);
+            params.set('invested', cashInvested);
+            const newUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+            navigator.clipboard.writeText(newUrl).then(() => {
+                setCopyStatus(true);
+                setTimeout(() => setCopyStatus(false), 2000);
+            });
+        };
+        
+        const sensitivity = useMemo(() => {
+            const numCashFlow = parseFloat(cashFlow) || 0;
+            const numCashInvested = parseFloat(cashInvested) || 0;
+            if (numCashInvested === 0) return {};
+            return {
+                flowMinus10: ((numCashFlow * 0.9) / numCashInvested) * 100,
+                flowPlus10: ((numCashFlow * 1.1) / numCashInvested) * 100,
+                investedMinus10: numCashInvested * 0.9 === 0 ? Infinity : (numCashFlow / (numCashInvested * 0.9)) * 100,
+                investedPlus10: numCashInvested * 1.1 === 0 ? Infinity : (numCashFlow / (numCashInvested * 1.1)) * 100,
+            }
+        }, [cashFlow, cashInvested]);
+
+        return (
+          <div className="p-4 md:p-6 bg-white border border-gray-200 rounded-lg">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-600">Annual Pre-Tax Cash Flow <InfoTooltip text="Net income after all expenses including debt service. Calculated as NOI minus Total Debt Service." /></label>
+                  <input type="number" value={cashFlow} onChange={e => setCashFlow(e.target.value)} className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 text-gray-900 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"/>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-600">Total Cash Invested <InfoTooltip text="Total capital invested including down payment, closing costs, and immediate repairs." /></label>
+                  <input type="number" value={cashInvested} onChange={e => setCashInvested(e.target.value)} className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 text-gray-900 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"/>
+                </div>
+              </div>
+              <div className="mt-4 md:mt-0 md:ml-6 flex flex-col items-center justify-center bg-gray-50 p-6 rounded-lg shadow-inner h-full">
+                <span className="text-sm font-medium text-gray-500">Cash-on-Cash Return</span>
+                <p className="text-4xl md:text-5xl font-bold text-blue-600 my-1">{cocReturn.toFixed(2)}%</p>
+                <p className="text-xs text-gray-400">Formula: Cash Flow / Cash Invested</p>
+              </div>
+            </div>
+            <div className="mt-6 flex flex-col md:flex-row gap-3">
+                <button onClick={handleShare} className="bg-blue-600 text-white hover:bg-blue-700 text-sm font-semibold py-2 px-4 rounded-md transition-colors flex-1">{copyStatus ? 'Link Copied!' : 'Share This Calculation'}</button>
+                <button onClick={() => setShowFormula(!showFormula)} className="bg-gray-200 text-gray-700 hover:bg-gray-300 text-sm font-semibold py-2 px-4 rounded-md transition-colors flex-1">{showFormula ? 'Hide' : 'Show'} Formula & Sensitivity</button>
+            </div>
+            {showFormula && (<div className="mt-4 bg-blue-50 border-l-4 border-blue-300 p-4 rounded-md text-sm text-gray-800 space-y-3"><p><strong className="font-semibold">Formula:</strong> CoC Return = (Annual Pre-Tax Cash Flow ÷ Total Cash Invested) × 100</p><div><strong className="font-semibold">Sensitivity Analysis (±10%):</strong><ul className="list-disc list-inside mt-1 text-gray-700"><li><strong>Base Return:</strong> {cocReturn.toFixed(2)}%</li><li>If Cash Flow changes: -10% → {sensitivity.flowMinus10.toFixed(2)}% | +10% → {sensitivity.flowPlus10.toFixed(2)}%</li><li>If Investment changes: -10% → {sensitivity.investedMinus10.toFixed(2)}% | +10% → {sensitivity.investedPlus10.toFixed(2)}%</li></ul></div></div>)}
+          </div>
+        );
+      };
+
+      // --- Page Specific Component ---
+      const CashOnCashPage = () => {
+        const [cashFlow, setCashFlow] = useState('15000');
+        const [cashInvested, setCashInvested] = useState('250000');
+        
+        useEffect(() => {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('flow')) setCashFlow(params.get('flow'));
+            if (params.get('invested')) setCashInvested(params.get('invested'));
+        }, []);
+
+        const cocReturn = useMemo(() => {
+          const numCashFlow = parseFloat(cashFlow);
+          const numCashInvested = parseFloat(cashInvested);
+          if (isNaN(numCashFlow) || isNaN(numCashInvested) || numCashInvested === 0) return 0;
+          return (numCashFlow / numCashInvested) * 100;
+        }, [cashFlow, cashInvested]);
+        
+        const getCocInterpretation = (rate) => {
+            if (rate < 8) return "is below";
+            if (rate >= 8 && rate <= 12) return "meets";
+            return "exceeds";
+        };
+        const interpretationText = getCocInterpretation(cocReturn);
+
+        const faqs = [ { question: "What's the difference between cap rate and cash-on-cash return?", answer: "Cap rate measures a property's unlevered return (as if bought with all cash), ignoring financing. Cash-on-cash (CoC) return measures the return on the actual cash invested, accounting for loan payments. CoC is a more personal metric reflecting your specific deal structure, while cap rate is better for comparing properties on an equal footing." }, { question: "What's a good cash-on-cash return?", answer: "Most commercial real estate investors target a CoC return of 8-12%. Returns below this range may not justify the risk, while returns above it are considered very strong. However, the 'right' number depends heavily on the market, property type, and your personal investment strategy." }, { question: "Can CoC return be negative?", answer: "Yes. A negative CoC return means you are losing money on the property each year after paying all expenses and debt service. This can happen in the early years of a value-add project or if expenses are higher than anticipated. It indicates you must contribute more cash to keep the property running." }, ];
+
+        return (
+            <div className="bg-gray-50 text-gray-800 min-h-screen">
+                <HeaderAndNav activePage="Calculators" />
+                <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+                     <nav className="text-sm mb-4" aria-label="Breadcrumb"><ol className="list-none p-0 inline-flex">
+                        <li className="flex items-center"><a href="index.html" className="text-gray-500 hover:text-blue-600">Home</a><svg className="fill-current w-3 h-3 mx-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z"/></svg></li>
+                        <li><span className="text-gray-700 font-medium">Cash-on-Cash Calculator</span></li></ol>
+                    </nav>
+
+                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900">Cash-on-Cash Return Calculator</h1>
+                     <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <div className="lg:col-span-2">
+                           <CashOnCashCalculator cashFlow={cashFlow} setCashFlow={setCashFlow} cashInvested={cashInvested} setCashInvested={setCashInvested} cocReturn={cocReturn} />
+                           
+                           {parseFloat(cashInvested) > 0 && (
+                                <div className="mt-6 bg-white p-6 rounded-lg border border-gray-200">
+                                    <h3 className="text-xl font-bold text-gray-900">💵 Evaluating Your Return</h3>
+                                    <div className="mt-4 space-y-2 text-gray-700">
+                                        <p>Your <strong>{cocReturn.toFixed(2)}%</strong> CoC return <strong>{interpretationText}</strong> typical investor targets.</p>
+                                        <ul className="list-disc list-inside space-y-1 pl-2 text-sm text-gray-600">
+                                            <li><strong>5-7%:</strong> Conservative return, lower leverage or stable properties.</li>
+                                            <li><strong>8-12%:</strong> Target range for most commercial real estate investors.</li>
+                                            <li><strong>12-15%:</strong> Strong return, may indicate good deal or higher leverage.</li>
+                                            <li><strong>15%+:</strong> Excellent return, verify assumptions aren't overly optimistic.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            )}
+
+                           <div className="mt-6 bg-blue-50 border-l-4 border-blue-400 p-4 rounded-md">
+                               <p><strong className="font-semibold text-blue-800">💡 Pro Tip:</strong> CoC return changes with leverage (the size of your loan), while cap rate stays the same. Use both metrics together: CoC shows your actual cash return on your down payment, while cap rate shows the property's raw performance before financing.</p>
+                           </div>
+
+                           <div className="mt-8 prose max-w-none text-gray-700 bg-white p-6 rounded-lg border border-gray-200">
+                                <h2 className="text-2xl font-bold text-gray-900">Understanding Cash-on-Cash Return</h2>
+                                <p>Cash-on-Cash (CoC) Return is a rate of return ratio that calculates the total cash income earned on the total cash invested in a property. It is a key metric for real estate investors because it measures the performance of an investment based on the actual cash they have put into the deal, providing a clear picture of their annual return before taxes.</p>
+                                <h3>How It Differs from Cap Rate</h3>
+                                <p>While cap rate measures a property's unlevered yield (as if it were purchased with all cash), Cash-on-Cash Return is a levered metric. This means it takes into account the effect of financing on the return. Because it includes debt service in its calculation (Annual Cash Flow = NOI - Debt Service), the CoC return is highly sensitive to loan terms like interest rate and amortization period. Two investors could buy the same property, have the same cap rate, but experience vastly different CoC returns based on their financing structure.</p>
+                                <h3>Why Leverage Matters</h3>
+                                <ul>
+                                    <li><strong>Higher Leverage (More Debt):</strong> Using more debt reduces the initial cash investment, which can significantly amplify the CoC return if the property performs well. However, it also increases risk, as higher debt payments make it harder to achieve positive cash flow.</li>
+                                    <li><strong>Lower Leverage (Less Debt):</strong> A larger down payment increases the total cash invested, which typically results in a lower CoC return. The trade-off is lower risk and more stable cash flow, as the debt service is smaller.</li>
+                                </ul>
+                                <p>Ultimately, CoC Return is a personalized metric. It tells you exactly how hard your invested capital is working for you in a specific deal. It's essential for evaluating how different financing options impact your potential returns and for comparing the performance of different deals within your portfolio.</p>
+                           </div>
+
+                           <div className="mt-8 bg-white p-6 rounded-lg border border-gray-200">
+                                <h3 className="text-2xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h3>
+                                <div className="space-y-3 border-t border-gray-200 divide-y divide-gray-200">
+                                    {faqs.map((faq, index) => <AccordionItem key={index} question={faq.question} answer={faq.answer} />)}
+                                </div>
+                           </div>
+                        </div>
+
+                        <aside className="space-y-6">
+                            <AdPlaceholder widthClass="w-[300px]" heightClass="h-[250px]" />
+                            <AffiliateCard title="Compare Lenders" description="Find the best financing options." cta="Compare lenders" />
+                            <AdPlaceholder widthClass="w-[300px]" heightClass="h-[250px]" />
+                            <AffiliateCard title="AI Valuation Tool" description="Get instant property valuations." cta="Try valuation tool" />
+                        </aside>
+                    </div>
+                     <div className="mt-8"><AdPlaceholder widthClass="w-full max-w-[728px]" heightClass="h-[90px]" /></div>
+                </main>
+                <Footer />
+            </div>
+        );
+      };
+      
+      const root = ReactDOM.createRoot(document.getElementById('root'));
+      root.render(<CashOnCashPage />);
+    </script>
+</body>
+</html>
