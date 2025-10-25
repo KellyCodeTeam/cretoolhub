@@ -4,14 +4,11 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>How to Calculate Cap Rate for Commercial Real Estate: Complete 2025 Guide</title>
+    <title>How to Calculate Cap Rate: 2025 Guide for CRE Investors</title>
     <meta name="description" content="Learn how to calculate cap rate with our complete 2025 guide. Understand the cap rate formula, what makes a good cap rate, and use our free calculator." />
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
+    
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-N5TV8E0CCL"></script>
     <script>
@@ -23,57 +20,84 @@
 
     <style>
       body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
-      .dropdown { visibility: hidden; opacity: 0; transition: visibility 0.1s linear, opacity 0.1s linear; }
-      .group:hover .dropdown { visibility: visible; opacity: 1; }
-      .prose h2 { margin-bottom: 1.5em; }
-      .prose h3 { margin-bottom: 1.25em; }
+      .dropdown { position: relative; display: inline-block; }
+      .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: white;
+        min-width: 280px;
+        box-shadow: 0px 8px 16px rgba(0,0,0,0.1);
+        z-index: 1;
+        border-radius: 8px;
+        padding: 8px 0;
+        top: 100%;
+        left: 0;
+        border: 1px solid #e5e7eb;
+      }
+      .dropdown-content a {
+        color: #1f2937;
+        padding: 12px 20px;
+        text-decoration: none;
+        display: block;
+        transition: background-color 0.2s;
+      }
+      .dropdown-content a:hover {
+        background-color: #f3f4f6;
+      }
+      .dropdown:hover .dropdown-content {
+        display: block;
+      }
     </style>
 </head>
 <body class="bg-gray-50">
-    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-200">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <div class="flex items-center"><a href="index.html" class="text-xl font-bold text-blue-600">CRE Tool Hub</a></div>
-                <div class="hidden md:block">
-                    <div class="ml-10 flex items-baseline space-x-4">
-                        <a href="index.html" class="px-3 py-2 rounded-md text-sm font-medium transition-colors text-gray-700 hover:bg-gray-100">Home</a>
-                        <div class="relative group">
-                            <a href="cap-rate-calculator.html" class="px-3 py-2 rounded-md text-sm font-medium transition-colors text-gray-700 hover:bg-gray-100 flex items-center">
-                                Calculators <svg class="ml-1 h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-                            </a>
-                            <div class="dropdown absolute left-0 mt-2 w-64 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
-                                <div class="py-1">
-                                    <a href="cap-rate-calculator.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Cap Rate Calculator</a>
-                                    <a href="noi-builder.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">NOI Builder</a>
-                                    <a href="cash-on-cash-calculator.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Cash-on-Cash Calculator</a>
-                                    <a href="dscr-calculator.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">DSCR Calculator</a>
-                                    <a href="ltv-calculator.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Loan-to-Value (LTV) Calculator</a>
-                                    <a href="debt-yield-calculator.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Debt Yield Calculator</a>
-                                    <a href="breakeven-occupancy-calculator.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Breakeven Occupancy Calculator</a>
-                                </div>
-                            </div>
+    <!-- Header with Navigation and Dropdown -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex justify-between items-center">
+                <div>
+                    <a href="../index.html" class="text-2xl font-bold text-blue-600">CRE Tool Hub</a>
+                    <p class="text-sm text-gray-600 hidden md:block">Free CRE calculators — client-side, no storage.</p>
+                </div>
+                <nav class="hidden md:flex items-center gap-6">
+                    <a href="../index.html" class="text-gray-700 hover:text-blue-600 transition">Home</a>
+                    <div class="dropdown">
+                        <a href="../cap-rate-calculator.html" class="text-gray-700 hover:text-blue-600 transition flex items-center">
+                            Calculators
+                            <svg class="ml-1 h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                        </a>
+                        <div class="dropdown-content">
+                            <a href="../cap-rate-calculator.html">Cap Rate Calculator</a>
+                            <a href="../noi-builder.html">NOI Builder</a>
+                            <a href="../cash-on-cash-calculator.html">Cash-on-Cash Calculator</a>
+                            <a href="../dscr-calculator.html">DSCR Calculator</a>
+                            <a href="../ltv-calculator.html">Loan-to-Value Calculator</a>
+                            <a href="../debt-yield-calculator.html">Debt Yield Calculator</a>
+                            <a href="../breakeven-occupancy-calculator.html">Breakeven Occupancy Calculator</a>
                         </div>
-                        <a href="#" class="px-3 py-2 rounded-md text-sm font-medium transition-colors bg-blue-100 text-blue-700">Blog</a>
-                        <a href="#" class="px-3 py-2 rounded-md text-sm font-medium transition-colors text-gray-700 hover:bg-gray-100">About</a>
                     </div>
-                </div>
-                <div class="-mr-2 flex md:hidden">
-                    <button type="button" class="bg-gray-100 inline-flex items-center justify-center p-2 rounded-md text-gray-600 focus:outline-none"><span class="sr-only">Open main menu</span><svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
-                </div>
+                    <a href="#" class="text-blue-600 font-semibold">Blog</a>
+                    <a href="#" class="text-gray-700 hover:text-blue-600 transition">About</a>
+                </nav>
             </div>
         </div>
     </header>
 
-    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-        <div class="bg-white p-6 md:p-10 rounded-lg shadow-md">
-            <article class="prose lg:prose-lg max-w-none text-gray-700">
-                <nav class="text-sm mb-4" aria-label="Breadcrumb"><ol class="list-none p-0 inline-flex">
-                    <li class="flex items-center"><a href="index.html" class="text-gray-500 hover:text-blue-600">Home</a><svg class="fill-current w-3 h-3 mx-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z"/></svg></li>
-                    <li><span class="text-gray-400">Blog</span></li></ol>
-                </nav>
+    <!-- Breadcrumb -->
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div class="text-sm text-gray-600">
+            <a href="../index.html" class="hover:text-blue-600">Home</a>
+            <span class="mx-2">›</span>
+            <a href="#" class="hover:text-blue-600">Blog</a>
+        </div>
+    </div>
 
-                <h1>How to Calculate Cap Rate for Commercial Real Estate: Complete 2025 Guide</h1>
-                <p class="text-gray-500 text-base">Published on July 29, 2024 | 7 min read</p>
+    <!-- Article Content -->
+    <article class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+        <div class="bg-white rounded-lg shadow-sm p-8 md:p-12">
+            <h1 class="text-3xl md:text-4xl font-bold text-blue-600 mb-4" style="color: #2563eb;">How to Calculate Cap Rate for Commercial Real Estate: Complete 2025 Guide</h1>
+            <p class="text-sm text-gray-500 mb-8">Published on July 30, 2024 | 7 min read</p>
+            
+            <div class="prose prose-lg max-w-none">
                 <p>If you're involved in commercial real estate, the term "cap rate" is one you'll encounter constantly. But what exactly is it, and how do you calculate it? Understanding the capitalization rate is fundamental to evaluating investment properties, comparing opportunities, and making informed decisions. This guide will walk you through everything you need to know about the cap rate formula and how to use it effectively in 2025.</p>
                 
                 <h2>Cap Rate Formula Explained</h2>
@@ -83,7 +107,7 @@
                 </div>
                 <p>To use this formula, you need two key pieces of information:</p>
                 <ul>
-                    <li><strong>Net Operating Income (NOI):</strong> This is the property's annual income after paying all operating expenses but before paying debt service (mortgage payments) and income taxes. You can calculate it with our <a href="noi-builder.html">NOI Builder</a>.</li>
+                    <li><strong>Net Operating Income (NOI):</strong> This is the property's annual income after paying all operating expenses but before paying debt service (mortgage payments) and income taxes. You can calculate it with our <a href="../noi-builder.html">NOI Builder</a>.</li>
                     <li><strong>Property Value:</strong> This is the purchase price or the current market value of the asset.</li>
                 </ul>
 
@@ -111,22 +135,36 @@
 
                 <h2>Common Cap Rate Mistakes</h2>
                 <h3>1. Ignoring "Below-the-Line" Expenses</h3>
-                <p>The cap rate formula uses NOI, which excludes debt service and capital expenditures (CapEx). A property might have a great cap rate but poor actual cash flow if the mortgage is too high or it needs a new roof. Always look beyond the cap rate to metrics like <a href="cash-on-cash-return-calculator.html">Cash-on-Cash Return</a>.</p>
+                <p>The cap rate formula uses NOI, which excludes debt service and capital expenditures (CapEx). A property might have a great cap rate but poor actual cash flow if the mortgage is too high or it needs a new roof. Always look beyond the cap rate to metrics like <a href="../cash-on-cash-calculator.html">Cash-on-Cash Return</a>.</p>
                 <h3>2. Using Pro-Forma Numbers</h3>
                 <p>Sellers often present "pro-forma" financials, which are optimistic projections. Always calculate the cap rate using the property's actual, trailing 12-month (T12) financial data for a more accurate picture of performance.</p>
                 <h3>3. Not Comparing to the Market</h3>
                 <p>A cap rate is only useful in context. A 6% cap rate might be excellent in a prime urban market but poor in a riskier suburban one. Always compare your subject property's cap rate to recent, comparable sales in the same submarket.</p>
+            </div>
 
-                <h2>How to Use Our Cap Rate Calculator</h2>
-                <p>Feeling overwhelmed by the numbers? Our free, instant tool makes it easy. Instead of manual calculations, you can get an accurate cap rate in seconds. Simply enter the property's Net Operating Income and its purchase price to see the result immediately.</p>
-                <div class="mt-8 text-center">
-                    <a href="cap-rate-calculator.html" class="bg-blue-600 text-white hover:bg-blue-700 font-bold py-3 px-6 rounded-md transition-colors text-lg">Try Our Free Cap Rate Calculator</a>
-                </div>
-
-            </article>
+            <div class="mt-12 text-center">
+                <a href="../cap-rate-calculator.html" class="inline-block bg-blue-600 text-white font-semibold px-8 py-4 rounded-lg hover:bg-blue-700 transition text-lg">
+                    Try Our Free Cap Rate Calculator
+                </a>
+            </div>
         </div>
-    </main>
+    </article>
 
-    <footer class="bg-white border-t border-gray-200"><div class="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center text-gray-500"><p class="text-xs max-w-3xl mx-auto"><strong>Disclaimer:</strong> CRE Tool Hub provides educational calculators for informational purposes only. This is not financial, investment, or legal advice. Consult qualified professionals before making investment decisions.</p><div class="mt-4 flex justify-center space-x-4 text-xs"><a href="#" class="hover:text-gray-700">Privacy Policy</a><span>&middot;</span><a href="#" class="hover:text-gray-700">Terms of Use</a><span>&middot;</span><a href="#" class="hover:text-gray-700">Contact</a></div><p class="mt-4 text-xs">&copy; 2025 CRE Tool Hub. All rights reserved.</p></div></footer>
+    <!-- Footer -->
+    <footer class="bg-white border-t mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <p class="text-sm text-gray-600 text-center mb-4">
+                <strong>Disclaimer:</strong> CRE Tool Hub provides educational calculators for informational purposes only. This is not financial, investment, or legal advice. Consult qualified professionals before making investment decisions.
+            </p>
+            <div class="text-center text-sm text-gray-500 space-x-4">
+                <a href="#" class="hover:text-gray-700">Privacy Policy</a>
+                <span>·</span>
+                <a href="#" class="hover:text-gray-700">Terms of Use</a>
+                <span>·</span>
+                <a href="#" class="hover:text-gray-700">Contact</a>
+            </div>
+            <p class="text-center text-sm text-gray-500 mt-4">© 2025 CRE Tool Hub. All rights reserved.</p>
+        </div>
+    </footer>
 </body>
 </html>
