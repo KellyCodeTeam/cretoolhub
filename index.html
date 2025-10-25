@@ -23,6 +23,15 @@
       body {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       }
+      .dropdown {
+        visibility: hidden;
+        opacity: 0;
+        transition: visibility 0.1s linear, opacity 0.1s linear;
+      }
+      .group:hover .dropdown {
+        visibility: visible;
+        opacity: 1;
+      }
     </style>
 </head>
 <body class="bg-white">
@@ -36,14 +45,23 @@
         const [isMenuOpen, setIsMenuOpen] = useState(false);
         const navLinks = [
             { name: 'Home', href: 'index.html' },
-            { name: 'Calculators', href: 'cap-rate-calculator.html' },
             { name: 'Blog', href: '#' },
             { name: 'About', href: '#' },
         ];
 
+        const calculatorLinks = [
+            { name: 'Cap Rate Calculator', href: 'cap-rate-calculator.html' },
+            { name: 'NOI Builder', href: 'noi-builder.html' },
+            { name: 'Cash-on-Cash Calculator', href: 'cash-on-cash-calculator.html' },
+            { name: 'DSCR Calculator', href: 'dscr-calculator.html' },
+            { name: 'Loan-to-Value (LTV) Calculator', href: 'ltv-calculator.html' },
+            { name: 'Debt Yield Calculator', href: 'debt-yield-calculator.html' },
+            { name: 'Breakeven Occupancy Calculator', href: 'breakeven-occupancy-calculator.html' },
+        ];
+
         const linkClasses = (page) => 
             `px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                activePage === page.name ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100'
+                activePage === page ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100'
             }`;
 
         return (
@@ -58,7 +76,23 @@
                         </div>
                         <div className="hidden md:block">
                             <div className="ml-10 flex items-baseline space-x-4">
-                                {navLinks.map(link => <a key={link.name} href={link.href} className={linkClasses(link)}>{link.name}</a>)}
+                                <a href="index.html" className={linkClasses('Home')}>Home</a>
+                                <div className="relative group">
+                                    <a href="cap-rate-calculator.html" className={`${linkClasses('Calculators')} flex items-center`}>
+                                        Calculators
+                                        <svg className="ml-1 h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                        </svg>
+                                    </a>
+                                    <div className="dropdown absolute left-0 mt-2 w-64 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
+                                        <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+                                            {calculatorLinks.map(link => (
+                                                <a key={link.name} href={link.href} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem">{link.name}</a>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                                {navLinks.slice(1).map(link => <a key={link.name} href={link.href} className={linkClasses(link.name)}>{link.name}</a>)}
                             </div>
                         </div>
                         <div className="-mr-2 flex md:hidden">
@@ -76,7 +110,16 @@
                 {isMenuOpen && (
                     <div className="md:hidden" id="mobile-menu">
                         <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                            {navLinks.map(link => <a key={link.name} href={link.href} className={`block ${linkClasses(link)}`}>{link.name}</a>)}
+                            <a href="index.html" className={`block ${linkClasses('Home')}`}>Home</a>
+                             <div className="relative group">
+                                <a href="cap-rate-calculator.html" className={`block ${linkClasses('Calculators')}`}>Calculators</a>
+                                <div className="mt-1 space-y-1 pl-4">
+                                  {calculatorLinks.map(link => (
+                                      <a key={link.name} href={link.href} className="block px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-100">{link.name}</a>
+                                  ))}
+                                </div>
+                             </div>
+                            {navLinks.slice(1).map(link => <a key={link.name} href={link.href} className={`block ${linkClasses(link.name)}`}>{link.name}</a>)}
                         </div>
                     </div>
                 )}
@@ -107,7 +150,10 @@
           { name: "Cap Rate Calculator", icon: "📊", desc: "Calculate capitalization rate and evaluate property returns", href: "cap-rate-calculator.html" },
           { name: "NOI Builder", icon: "💰", desc: "Build your Net Operating Income from gross income and expenses", href: "noi-builder.html" },
           { name: "Cash-on-Cash Calculator", icon: "💵", desc: "Measure actual cash return on your invested capital", href: "cash-on-cash-calculator.html" },
-          { name: "DSCR Calculator", icon: "🏦", desc: "Calculate debt service coverage ratio for lender requirements", href: "dscr-calculator.html" }
+          { name: "DSCR Calculator", icon: "🏦", desc: "Calculate debt service coverage ratio for lender requirements", href: "dscr-calculator.html" },
+          { name: "Loan-to-Value (LTV) Calculator", icon: "🏦", desc: "Calculate loan-to-value ratio for financing requirements", href: "ltv-calculator.html" },
+          { name: "Debt Yield Calculator", icon: "📊", desc: "Measure debt yield for lender underwriting standards", href: "debt-yield-calculator.html" },
+          { name: "Breakeven Occupancy Calculator", icon: "🏢", desc: "Find minimum occupancy needed to cover all expenses", href: "breakeven-occupancy-calculator.html" }
         ];
         
         const features = [
@@ -138,7 +184,7 @@
               {/* Calculator Grid */}
               <div className="py-12 bg-white">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-                  <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+                  <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
                     {calculators.map(calc => (
                       <div key={calc.name} className="pt-6">
                         <div className="flow-root bg-gray-50 rounded-lg px-6 pb-8 h-full border border-gray-200 hover:shadow-lg transition-shadow">
@@ -175,8 +221,7 @@
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                         </svg>
                         <div className="ml-3">
-                          <dt className="text-lg leading-6 font-medium text-gray-900">Feature {index + 1}</dt>
-                          <dd className="mt-2 text-base text-gray-500">{feature}</dd>
+                           <dd className="text-base text-gray-600">{feature}</dd>
                         </div>
                       </div>
                     ))}
