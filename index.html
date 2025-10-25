@@ -3,688 +3,195 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CRE Tool Hub</title>
+    <title>CRE Tool Hub | Free Commercial Real Estate Calculators</title>
     
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-    <!-- Custom Styles -->
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-N5TV8E0CCL"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-N5TV8E0CCL');
+    </script>
+
     <style>
       body {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       }
     </style>
-
-    <!-- React & Babel CDNs for in-browser transpilation -->
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
 <body class="bg-white">
     <div id="root"></div>
-
     <script type="text/babel">
-      const { useState, useMemo, useEffect } = React;
+      const { useState } = React;
 
-      // --- From types.ts ---
-      const Tool = {
-        CapRate: 'Cap Rate',
-        NOI: 'NOI Builder',
-        CoC: 'Cash-on-Cash',
-        DSCR: 'DSCR',
-      };
+      // --- Shared Components ---
 
-      // --- From components/AccordionItem.tsx ---
-      const AccordionItem = ({ question, answer }) => {
-        const [isOpen, setIsOpen] = useState(false);
+      const HeaderAndNav = ({ activePage }) => {
+        const [isMenuOpen, setIsMenuOpen] = useState(false);
+        const navLinks = [
+            { name: 'Home', href: 'index.html' },
+            { name: 'Calculators', href: 'cap-rate-calculator.html' },
+            { name: 'Blog', href: '#' },
+            { name: 'About', href: '#' },
+        ];
+
+        const linkClasses = (page) => 
+            `px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                activePage === page.name ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100'
+            }`;
 
         return (
-          <div className="py-4">
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="w-full flex justify-between items-center text-left text-gray-800 focus:outline-none"
-            >
-              <span className="font-semibold">{question}</span>
-              <svg
-                className={`w-5 h-5 transform transition-transform duration-200 ${
-                  isOpen ? 'rotate-180' : 'rotate-0'
-                }`}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            </button>
-            {isOpen && (
-              <div className="mt-3 text-gray-600">
-                <p>{answer}</p>
-              </div>
-            )}
-          </div>
+            <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-200">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex items-center justify-between h-16">
+                        <div className="flex items-center">
+                            <div className="flex-shrink-0">
+                                <a href="index.html" className="text-xl font-bold text-blue-600">CRE Tool Hub</a>
+                            </div>
+                            <p className="ml-4 text-xs text-gray-500 hidden md:block">Free CRE calculators — client-side, no storage.</p>
+                        </div>
+                        <div className="hidden md:block">
+                            <div className="ml-10 flex items-baseline space-x-4">
+                                {navLinks.map(link => <a key={link.name} href={link.href} className={linkClasses(link)}>{link.name}</a>)}
+                            </div>
+                        </div>
+                        <div className="-mr-2 flex md:hidden">
+                            <button onClick={() => setIsMenuOpen(!isMenuOpen)} type="button" className="bg-gray-100 inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" aria-controls="mobile-menu" aria-expanded="false">
+                                <span className="sr-only">Open main menu</span>
+                                {!isMenuOpen ? (
+                                    <svg className="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                                ) : (
+                                    <svg className="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {isMenuOpen && (
+                    <div className="md:hidden" id="mobile-menu">
+                        <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                            {navLinks.map(link => <a key={link.name} href={link.href} className={`block ${linkClasses(link)}`}>{link.name}</a>)}
+                        </div>
+                    </div>
+                )}
+            </header>
         );
       };
 
-      // --- From components/SeoFaqContent.tsx ---
-      const SeoFaqContent = () => {
-        const article = "A capitalization rate, or cap rate, measures the expected rate of return on an income-producing property relative to its purchase price. Cap Rate (%) = Net Operating Income ÷ Property Value × 100. Cap rate varies by property type, location, and market conditions. CREToolHub provides four client-side calculators: Cap Rate, NOI Builder, Cash-on-Cash, and DSCR. Investors use these tools to quickly evaluate property profitability, compare options, and make informed decisions without storing personal data.";
+      const Footer = () => (
+        <footer className="bg-gray-50 border-t border-gray-200">
+            <div className="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center text-gray-500">
+                <p className="text-xs max-w-3xl mx-auto">
+                    <strong>Disclaimer:</strong> CRE Tool Hub provides educational calculators for informational purposes only. This is not financial, investment, or legal advice. Consult qualified professionals before making investment decisions.
+                </p>
+                <div className="mt-4 flex justify-center space-x-4 text-xs">
+                    <a href="#" className="hover:text-gray-700">Privacy Policy</a>
+                    <span>&middot;</span>
+                    <a href="#" className="hover:text-gray-700">Terms of Use</a>
+                    <span>&middot;</span>
+                    <a href="#" className="hover:text-gray-700">Contact</a>
+                </div>
+                <p className="mt-4 text-xs">&copy; {new Date().getFullYear() + 1} CRE Tool Hub. All rights reserved.</p>
+            </div>
+        </footer>
+      );
+      
+      const HomePage = () => {
+        const calculators = [
+          { name: "Cap Rate Calculator", icon: "📊", desc: "Calculate capitalization rate and evaluate property returns", href: "cap-rate-calculator.html" },
+          { name: "NOI Builder", icon: "💰", desc: "Build your Net Operating Income from gross income and expenses", href: "noi-builder.html" },
+          { name: "Cash-on-Cash Calculator", icon: "💵", desc: "Measure actual cash return on your invested capital", href: "cash-on-cash-calculator.html" },
+          { name: "DSCR Calculator", icon: "🏦", desc: "Calculate debt service coverage ratio for lender requirements", href: "dscr-calculator.html" }
+        ];
         
-        const faqs = [
-          { question: "What is a good cap rate?", answer: "Depends on property type; 5–10% is common for stable urban properties." },
-          { question: "Can cap rate predict future returns?", answer: "No, it reflects current income, not future appreciation or expenses." },
-          { question: "How do I calculate NOI?", answer: "NOI = Gross rental income − operating expenses (excluding debt and taxes)." },
-          { question: "Should I use cap rate alone?", answer: "No, combine with Cash-on-Cash Return, DSCR, and other metrics." },
-          { question: "Does CREToolHub store my inputs?", answer: "No, all calculators run client-side; no data is saved." }
+        const features = [
+            "100% free, no registration required",
+            "All calculations happen in your browser - we never store your data",
+            "Professional-grade formulas trusted by investors",
+            "Share calculations via URL with partners and lenders"
         ];
 
         return (
-          <section className="space-y-10">
-            <div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">What is Cap Rate?</h3>
-              <div className="prose max-w-none text-gray-600">
-                <p>{article}</p>
-              </div>
-            </div>
-            <div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h3>
-              <div className="space-y-3 border-t border-b border-gray-200 divide-y divide-gray-200">
-                {faqs.map((faq, index) => (
-                  <AccordionItem key={index} question={faq.question} answer={faq.answer} />
-                ))}
-              </div>
-            </div>
-          </section>
-        );
-      };
-
-      // --- From components/AffiliateCard.tsx ---
-      const AffiliateCard = ({ title, description, cta }) => {
-        return (
-          <div className="border border-gray-200 rounded-lg p-4 flex flex-col md:flex-row justify-between items-center space-y-3 md:space-y-0 md:space-x-4">
-            <div className="text-center md:text-left">
-              <h4 className="font-semibold text-gray-800">{title}</h4>
-              <p className="text-sm text-gray-500">{description}</p>
-            </div>
-            <button className="bg-blue-600 text-white hover:bg-blue-700 text-sm font-semibold py-2 px-4 rounded-md transition-colors w-full md:w-auto flex-shrink-0">
-              {cta}
-            </button>
-          </div>
-        );
-      };
-
-      // --- From components/AdPlaceholder.tsx ---
-      const AdPlaceholder = () => {
-        return (
-          <div className="w-[300px] h-[250px] bg-gray-200 flex items-center justify-center mx-auto rounded-md">
-            <span className="text-gray-500">AdSense 300×250</span>
-          </div>
-        );
-      };
-
-      // --- From components/calculators/DscrCalculator.tsx ---
-      const DscrCalculator = ({ initialNoi, initialDebtService }) => {
-        const [noi, setNoi] = useState(initialNoi || '75000');
-        const [debtService, setDebtService] = useState(initialDebtService || '60000');
-        const [showFormula, setShowFormula] = useState(false);
-        const [copyStatus, setCopyStatus] = useState(false);
-
-        const dscr = useMemo(() => {
-          const numNoi = parseFloat(noi);
-          const numDebtService = parseFloat(debtService);
-          if (isNaN(numNoi) || isNaN(numDebtService) || numDebtService === 0) return 0;
-          return numNoi / numDebtService;
-        }, [noi, debtService]);
-        
-        const handleShare = () => {
-            const params = new URLSearchParams();
-            params.set('tool', 'dscr');
-            params.set('noi', noi);
-            params.set('debt', debtService);
-            const newUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
-            navigator.clipboard.writeText(newUrl).then(() => {
-                setCopyStatus(true);
-                setTimeout(() => setCopyStatus(false), 2000);
-            });
-        };
-
-        const sensitivity = useMemo(() => {
-            const numNoi = parseFloat(noi) || 0;
-            const numDebtService = parseFloat(debtService) || 0;
-            if (numDebtService === 0) return {};
-            return {
-                noiMinus10: ((numNoi * 0.9) / numDebtService),
-                noiPlus10: ((numNoi * 1.1) / numDebtService),
-                debtMinus10: numDebtService * 0.9 === 0 ? Infinity : (numNoi / (numDebtService * 0.9)),
-                debtPlus10: numDebtService * 1.1 === 0 ? Infinity : (numNoi / (numDebtService * 1.1)),
-            }
-        }, [noi, debtService]);
-
-
-        return (
-          <div className="p-4 md:p-6 bg-gray-50 rounded-lg">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-600">Net Operating Income (NOI)</label>
-                  <input type="number" value={noi} onChange={e => setNoi(e.target.value)} className="mt-1 block w-full rounded-md border-gray-600 bg-gray-800 text-white placeholder-gray-400 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"/>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-600">Total Debt Service</label>
-                  <input type="number" value={debtService} onChange={e => setDebtService(e.target.value)} className="mt-1 block w-full rounded-md border-gray-600 bg-gray-800 text-white placeholder-gray-400 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"/>
+          <div className="bg-white">
+            <HeaderAndNav activePage="Home" />
+            
+            <main>
+              {/* Hero Section */}
+              <div className="bg-gray-50">
+                <div className="max-w-6xl mx-auto py-16 px-4 sm:py-24 sm:px-6 lg:px-8 text-center">
+                  <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl md:text-6xl">
+                    <span className="block">Professional Commercial</span>
+                    <span className="block text-blue-600">Real Estate Calculators</span>
+                  </h1>
+                  <p className="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
+                    Analyze properties instantly with our free, client-side tools. No signup required.
+                  </p>
                 </div>
               </div>
-              <div className="mt-4 md:mt-0 md:ml-6 flex flex-col items-center justify-center bg-white p-6 rounded-lg shadow-inner h-full">
-                <span className="text-sm font-medium text-gray-500">DSCR</span>
-                <p className="text-4xl md:text-5xl font-bold text-blue-600 my-1">
-                  {dscr.toFixed(2)}x
-                </p>
-                <p className="text-xs text-gray-400">
-                  Formula: NOI / Debt Service
-                </p>
-              </div>
-            </div>
-            <div className="mt-6 flex flex-col md:flex-row gap-3">
-                <button onClick={handleShare} className="bg-blue-600 text-white hover:bg-blue-700 text-sm font-semibold py-2 px-4 rounded-md transition-colors flex-1">
-                    {copyStatus ? 'Link Copied!' : 'Share This Calculation'}
-                </button>
-                <button onClick={() => setShowFormula(!showFormula)} className="bg-gray-200 text-gray-700 hover:bg-gray-300 text-sm font-semibold py-2 px-4 rounded-md transition-colors flex-1">
-                    {showFormula ? 'Hide' : 'Show'} Formula & Sensitivity
-                </button>
-            </div>
-            {showFormula && (
-                <div className="mt-4 bg-blue-50 border-l-4 border-blue-300 p-4 rounded-md text-sm text-gray-800 space-y-3">
-                    <p><strong className="font-semibold">Formula:</strong> DSCR = Net Operating Income (NOI) ÷ Total Debt Service</p>
-                    <div>
-                        <strong className="font-semibold">Sensitivity Analysis (±10%):</strong>
-                        <ul className="list-disc list-inside mt-1 text-gray-700">
-                            <li><strong>Base DSCR:</strong> {dscr.toFixed(2)}x</li>
-                            <li>If NOI changes: -10% → {sensitivity.noiMinus10.toFixed(2)}x | +10% → {sensitivity.noiPlus10.toFixed(2)}x</li>
-                            <li>If Debt changes: -10% → {sensitivity.debtMinus10.toFixed(2)}x | +10% → {sensitivity.debtPlus10.toFixed(2)}x</li>
-                        </ul>
-                    </div>
-                </div>
-            )}
-          </div>
-        );
-      };
-      
-      // --- From components/calculators/CashOnCashCalculator.tsx ---
-      const CashOnCashCalculator = ({ initialCashFlow, initialCashInvested }) => {
-        const [cashFlow, setCashFlow] = useState(initialCashFlow || '15000');
-        const [cashInvested, setCashInvested] = useState(initialCashInvested || '250000');
-        const [showFormula, setShowFormula] = useState(false);
-        const [copyStatus, setCopyStatus] = useState(false);
 
-        const cocReturn = useMemo(() => {
-          const numCashFlow = parseFloat(cashFlow);
-          const numCashInvested = parseFloat(cashInvested);
-          if (isNaN(numCashFlow) || isNaN(numCashInvested) || numCashInvested === 0) return 0;
-          return (numCashFlow / numCashInvested) * 100;
-        }, [cashFlow, cashInvested]);
-        
-        const handleShare = () => {
-            const params = new URLSearchParams();
-            params.set('tool', 'coc');
-            params.set('flow', cashFlow);
-            params.set('invested', cashInvested);
-            const newUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
-            navigator.clipboard.writeText(newUrl).then(() => {
-                setCopyStatus(true);
-                setTimeout(() => setCopyStatus(false), 2000);
-            });
-        };
-        
-        const sensitivity = useMemo(() => {
-            const numCashFlow = parseFloat(cashFlow) || 0;
-            const numCashInvested = parseFloat(cashInvested) || 0;
-            if (numCashInvested === 0) return {};
-            return {
-                flowMinus10: ((numCashFlow * 0.9) / numCashInvested) * 100,
-                flowPlus10: ((numCashFlow * 1.1) / numCashInvested) * 100,
-                investedMinus10: numCashInvested * 0.9 === 0 ? Infinity : (numCashFlow / (numCashInvested * 0.9)) * 100,
-                investedPlus10: numCashInvested * 1.1 === 0 ? Infinity : (numCashFlow / (numCashInvested * 1.1)) * 100,
-            }
-        }, [cashFlow, cashInvested]);
-
-        return (
-          <div className="p-4 md:p-6 bg-gray-50 rounded-lg">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-600">Annual Pre-Tax Cash Flow</label>
-                  <input type="number" value={cashFlow} onChange={e => setCashFlow(e.target.value)} className="mt-1 block w-full rounded-md border-gray-600 bg-gray-800 text-white placeholder-gray-400 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"/>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-600">Total Cash Invested</label>
-                  <input type="number" value={cashInvested} onChange={e => setCashInvested(e.target.value)} className="mt-1 block w-full rounded-md border-gray-600 bg-gray-800 text-white placeholder-gray-400 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"/>
-                </div>
-              </div>
-              <div className="mt-4 md:mt-0 md:ml-6 flex flex-col items-center justify-center bg-white p-6 rounded-lg shadow-inner h-full">
-                <span className="text-sm font-medium text-gray-500">Cash-on-Cash Return</span>
-                <p className="text-4xl md:text-5xl font-bold text-blue-600 my-1">
-                  {cocReturn.toFixed(2)}%
-                </p>
-                <p className="text-xs text-gray-400">
-                  Formula: Cash Flow / Cash Invested
-                </p>
-              </div>
-            </div>
-            <div className="mt-6 flex flex-col md:flex-row gap-3">
-                <button onClick={handleShare} className="bg-blue-600 text-white hover:bg-blue-700 text-sm font-semibold py-2 px-4 rounded-md transition-colors flex-1">
-                    {copyStatus ? 'Link Copied!' : 'Share This Calculation'}
-                </button>
-                <button onClick={() => setShowFormula(!showFormula)} className="bg-gray-200 text-gray-700 hover:bg-gray-300 text-sm font-semibold py-2 px-4 rounded-md transition-colors flex-1">
-                    {showFormula ? 'Hide' : 'Show'} Formula & Sensitivity
-                </button>
-            </div>
-            {showFormula && (
-                <div className="mt-4 bg-blue-50 border-l-4 border-blue-300 p-4 rounded-md text-sm text-gray-800 space-y-3">
-                    <p><strong className="font-semibold">Formula:</strong> CoC Return = (Annual Pre-Tax Cash Flow ÷ Total Cash Invested) × 100</p>
-                    <div>
-                        <strong className="font-semibold">Sensitivity Analysis (±10%):</strong>
-                        <ul className="list-disc list-inside mt-1 text-gray-700">
-                            <li><strong>Base Return:</strong> {cocReturn.toFixed(2)}%</li>
-                            <li>If Cash Flow changes: -10% → {sensitivity.flowMinus10.toFixed(2)}% | +10% → {sensitivity.flowPlus10.toFixed(2)}%</li>
-                            <li>If Investment changes: -10% → {sensitivity.investedMinus10.toFixed(2)}% | +10% → {sensitivity.investedPlus10.toFixed(2)}%</li>
-                        </ul>
-                    </div>
-                </div>
-            )}
-          </div>
-        );
-      };
-      
-      // --- From components/calculators/NoiBuilder.tsx ---
-      const NoiBuilder = ({ initialGrossRent, initialVacancy, initialOtherIncome, initialOpEx }) => {
-        const [grossRent, setGrossRent] = useState(initialGrossRent || '120000');
-        const [vacancy, setVacancy] = useState(initialVacancy || '6000');
-        const [otherIncome, setOtherIncome] = useState(initialOtherIncome || '5000');
-        const [opEx, setOpEx] = useState(initialOpEx || '44000');
-        const [showFormula, setShowFormula] = useState(false);
-        const [copyStatus, setCopyStatus] = useState(false);
-
-        const noi = useMemo(() => {
-          const numGrossRent = parseFloat(grossRent) || 0;
-          const numVacancy = parseFloat(vacancy) || 0;
-          const numOtherIncome = parseFloat(otherIncome) || 0;
-          const numOpEx = parseFloat(opEx) || 0;
-          return numGrossRent - numVacancy + numOtherIncome - numOpEx;
-        }, [grossRent, vacancy, otherIncome, opEx]);
-        
-        const handleShare = () => {
-            const params = new URLSearchParams();
-            params.set('tool', 'noi');
-            params.set('rent', grossRent);
-            params.set('vacancy', vacancy);
-            params.set('other', otherIncome);
-            params.set('opex', opEx);
-            const newUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
-            navigator.clipboard.writeText(newUrl).then(() => {
-                setCopyStatus(true);
-                setTimeout(() => setCopyStatus(false), 2000);
-            });
-        };
-        
-        const calculateNoi = (gpr, vac, other, opex) => gpr - vac + other - opex;
-
-        const sensitivity = useMemo(() => {
-            const numGrossRent = parseFloat(grossRent) || 0;
-            const numVacancy = parseFloat(vacancy) || 0;
-            const numOtherIncome = parseFloat(otherIncome) || 0;
-            const numOpEx = parseFloat(opEx) || 0;
-            return {
-                rentMinus10: calculateNoi(numGrossRent * 0.9, numVacancy, numOtherIncome, numOpEx),
-                rentPlus10: calculateNoi(numGrossRent * 1.1, numVacancy, numOtherIncome, numOpEx),
-                opExMinus10: calculateNoi(numGrossRent, numVacancy, numOtherIncome, numOpEx * 0.9),
-                opExPlus10: calculateNoi(numGrossRent, numVacancy, numOtherIncome, numOpEx * 1.1),
-            }
-        }, [grossRent, vacancy, otherIncome, opEx]);
-
-        return (
-          <div className="p-4 md:p-6 bg-gray-50 rounded-lg">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
-              <div className="space-y-3">
-                <div>
-                  <label className="block text-sm font-medium text-gray-600">Gross Potential Rent</label>
-                  <input type="number" value={grossRent} onChange={e => setGrossRent(e.target.value)} className="mt-1 block w-full rounded-md border-gray-600 bg-gray-800 text-white placeholder-gray-400 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"/>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-600">Vacancy Loss (-)</label>
-                  <input type="number" value={vacancy} onChange={e => setVacancy(e.target.value)} className="mt-1 block w-full rounded-md border-gray-600 bg-gray-800 text-white placeholder-gray-400 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"/>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-600">Other Income (+)</label>
-                  <input type="number" value={otherIncome} onChange={e => setOtherIncome(e.target.value)} className="mt-1 block w-full rounded-md border-gray-600 bg-gray-800 text-white placeholder-gray-400 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"/>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-600">Operating Expenses (-)</label>
-                  <input type="number" value={opEx} onChange={e => setOpEx(e.target.value)} className="mt-1 block w-full rounded-md border-gray-600 bg-gray-800 text-white placeholder-gray-400 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"/>
-                </div>
-              </div>
-              <div className="mt-4 md:mt-0 md:ml-6 flex flex-col items-center justify-center bg-white p-6 rounded-lg shadow-inner h-full">
-                <span className="text-sm font-medium text-gray-500">Net Operating Income (NOI)</span>
-                <p className="text-4xl md:text-5xl font-bold text-blue-600 my-1">
-                  {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(noi)}
-                </p>
-                <p className="text-xs text-gray-400">
-                  Formula: (GPR - Vacancy + Other) - OpEx
-                </p>
-              </div>
-            </div>
-            <div className="mt-6 flex flex-col md:flex-row gap-3">
-                <button onClick={handleShare} className="bg-blue-600 text-white hover:bg-blue-700 text-sm font-semibold py-2 px-4 rounded-md transition-colors flex-1">
-                    {copyStatus ? 'Link Copied!' : 'Share This Calculation'}
-                </button>
-                <button onClick={() => setShowFormula(!showFormula)} className="bg-gray-200 text-gray-700 hover:bg-gray-300 text-sm font-semibold py-2 px-4 rounded-md transition-colors flex-1">
-                    {showFormula ? 'Hide' : 'Show'} Formula & Sensitivity
-                </button>
-            </div>
-            {showFormula && (
-                <div className="mt-4 bg-blue-50 border-l-4 border-blue-300 p-4 rounded-md text-sm text-gray-800 space-y-3">
-                    <p><strong className="font-semibold">Formula:</strong> NOI = (Gross Rent - Vacancy + Other Income) - Operating Expenses</p>
-                    <div>
-                        <strong className="font-semibold">Sensitivity Analysis (±10%):</strong>
-                        <ul className="list-disc list-inside mt-1 text-gray-700">
-                            <li><strong>Base NOI:</strong> {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(noi)}</li>
-                            <li>If Gross Rent changes: -10% → ${sensitivity.rentMinus10.toFixed(0)} | +10% → ${sensitivity.rentPlus10.toFixed(0)}</li>
-                            <li>If OpEx changes: -10% → ${sensitivity.opExMinus10.toFixed(0)} | +10% → ${sensitivity.opExPlus10.toFixed(0)}</li>
-                        </ul>
-                    </div>
-                </div>
-            )}
-          </div>
-        );
-      };
-
-      // --- From components/calculators/CapRateCalculator.tsx ---
-      const CapRateCalculator = ({ setActiveTool, initialNoi, initialPrice }) => {
-        const [noi, setNoi] = useState(initialNoi || '75000');
-        const [price, setPrice] = useState(initialPrice || '1000000');
-        const [showAdvancedToggle, setShowAdvancedToggle] = useState(false);
-        const [showFormula, setShowFormula] = useState(false);
-        const [copyStatus, setCopyStatus] = useState(false);
-
-        const capRate = useMemo(() => {
-          const numNoi = parseFloat(noi);
-          const numPrice = parseFloat(price);
-          if (isNaN(numNoi) || isNaN(numPrice) || numPrice === 0) return 0;
-          return (numNoi / numPrice) * 100;
-        }, [noi, price]);
-        
-        const handleShare = () => {
-            const params = new URLSearchParams();
-            params.set('tool', 'caprate');
-            params.set('noi', noi);
-            params.set('price', price);
-            const newUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
-            navigator.clipboard.writeText(newUrl).then(() => {
-                setCopyStatus(true);
-                setTimeout(() => setCopyStatus(false), 2000);
-            });
-        };
-        
-        const sensitivity = useMemo(() => {
-            const numNoi = parseFloat(noi) || 0;
-            const numPrice = parseFloat(price) || 0;
-            if (numPrice === 0) return {};
-            return {
-                noiMinus10: ((numNoi * 0.9) / numPrice) * 100,
-                noiPlus10: ((numNoi * 1.1) / numPrice) * 100,
-                priceMinus10: numPrice * 0.9 === 0 ? Infinity : (numNoi / (numPrice * 0.9)) * 100,
-                pricePlus10: numPrice * 1.1 === 0 ? Infinity : (numNoi / (numPrice * 1.1)) * 100,
-            }
-        }, [noi, price]);
-
-        return (
-          <div className="p-4 md:p-6 bg-gray-50 rounded-lg">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
-              <div className="space-y-4">
-                <div>
-                  <label htmlFor="noi" className="block text-sm font-medium text-gray-600">
-                    Net Operating Income (NOI)
-                  </label>
-                  <div className="mt-1 relative rounded-md shadow-sm">
-                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                      <span className="text-gray-400 sm:text-sm">$</span>
-                    </div>
-                    <input
-                      type="number"
-                      name="noi"
-                      id="noi"
-                      className="block w-full rounded-md border-gray-600 bg-gray-800 text-white placeholder-gray-400 pl-7 pr-12 py-2 focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                      placeholder="75000"
-                      value={noi}
-                      onChange={(e) => setNoi(e.target.value)}
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label htmlFor="price" className="block text-sm font-medium text-gray-600">
-                    Purchase Price
-                  </label>
-                  <div className="mt-1 relative rounded-md shadow-sm">
-                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                      <span className="text-gray-400 sm:text-sm">$</span>
-                    </div>
-                    <input
-                      type="number"
-                      name="price"
-                      id="price"
-                      className="block w-full rounded-md border-gray-600 bg-gray-800 text-white placeholder-gray-400 pl-7 pr-12 py-2 focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                      placeholder="1000000"
-                      value={price}
-                      onChange={(e) => setPrice(e.target.value)}
-                    />
-                  </div>
-                </div>
-                 <div className="pt-2">
-                    <label className="flex items-center space-x-2 text-sm text-gray-600 cursor-pointer">
-                        <input 
-                            type="checkbox" 
-                            checked={showAdvancedToggle}
-                            onChange={() => setShowAdvancedToggle(!showAdvancedToggle)}
-                            className="rounded text-blue-600 focus:ring-blue-500 h-4 w-4"
-                        />
-                        <span>Advanced</span>
-                    </label>
-                    {showAdvancedToggle && (
-                        <div className="mt-2 text-sm text-gray-700 bg-blue-50 p-3 rounded-md">
-                            Need to calculate your Net Operating Income first? Use our <a href="#" onClick={(e) => {e.preventDefault(); setActiveTool(Tool.NOI)}} className="text-blue-600 font-semibold hover:underline">NOI Builder</a>.
+              {/* Calculator Grid */}
+              <div className="py-12 bg-white">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                  <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+                    {calculators.map(calc => (
+                      <div key={calc.name} className="pt-6">
+                        <div className="flow-root bg-gray-50 rounded-lg px-6 pb-8 h-full border border-gray-200 hover:shadow-lg transition-shadow">
+                          <div className="-mt-6">
+                            <div>
+                              <span className="inline-flex items-center justify-center p-3 bg-blue-500 rounded-md shadow-lg">
+                                <span className="text-2xl">{calc.icon}</span>
+                              </span>
+                            </div>
+                            <h3 className="mt-8 text-lg font-medium text-gray-900 tracking-tight">{calc.name}</h3>
+                            <p className="mt-5 text-base text-gray-500">{calc.desc}</p>
+                            <a href={calc.href} className="mt-6 inline-block bg-blue-600 text-white hover:bg-blue-700 font-semibold py-2 px-4 rounded-md transition-colors w-full text-center">
+                              Use Calculator
+                            </a>
+                          </div>
                         </div>
-                    )}
-                </div>
-              </div>
-              <div className="mt-4 md:mt-0 md:ml-6 flex flex-col items-center justify-center bg-white p-6 rounded-lg shadow-inner h-full">
-                <span className="text-sm font-medium text-gray-500">Cap Rate</span>
-                <p className="text-4xl md:text-5xl font-bold text-blue-600 my-1">
-                  {capRate.toFixed(2)}%
-                </p>
-                <p className="text-xs text-gray-400">
-                  Formula: NOI / Price
-                </p>
-              </div>
-            </div>
-            <div className="mt-6 flex flex-col md:flex-row gap-3">
-                <button onClick={handleShare} className="bg-blue-600 text-white hover:bg-blue-700 text-sm font-semibold py-2 px-4 rounded-md transition-colors flex-1">
-                    {copyStatus ? 'Link Copied!' : 'Share This Calculation'}
-                </button>
-                <button onClick={() => setShowFormula(!showFormula)} className="bg-gray-200 text-gray-700 hover:bg-gray-300 text-sm font-semibold py-2 px-4 rounded-md transition-colors flex-1">
-                    {showFormula ? 'Hide' : 'Show'} Formula & Sensitivity
-                </button>
-            </div>
-            {showFormula && (
-                <div className="mt-4 bg-blue-50 border-l-4 border-blue-300 p-4 rounded-md text-sm text-gray-800 space-y-3">
-                    <p><strong className="font-semibold">Formula:</strong> Cap Rate = (Net Operating Income ÷ Purchase Price) × 100</p>
-                    <div>
-                        <strong className="font-semibold">Sensitivity Analysis (±10%):</strong>
-                        <ul className="list-disc list-inside mt-1 text-gray-700">
-                            <li><strong>Base Cap Rate:</strong> {capRate.toFixed(2)}%</li>
-                            <li>If NOI changes: -10% → {sensitivity.noiMinus10.toFixed(2)}% | +10% → {sensitivity.noiPlus10.toFixed(2)}%</li>
-                            <li>If Price changes: -10% → {sensitivity.priceMinus10.toFixed(2)}% | +10% → {sensitivity.pricePlus10.toFixed(2)}%</li>
-                        </ul>
-                    </div>
-                </div>
-            )}
-          </div>
-        );
-      };
-
-      // --- From components/TabSelector.tsx ---
-      const TabSelector = ({ activeTool, setActiveTool }) => {
-        const tools = [Tool.CapRate, Tool.NOI, Tool.CoC, Tool.DSCR];
-
-        return (
-          <div className="flex flex-col space-y-1 md:flex-row md:space-y-0 md:space-x-2 md:border-b md:border-gray-200">
-            {tools.map((tool) => {
-              const isActive = activeTool === tool;
-              return (
-                <button
-                  key={tool}
-                  onClick={() => setActiveTool(tool)}
-                  className={`px-3 py-2 md:px-4 text-left md:text-center text-sm md:text-base font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 w-full md:w-auto rounded-md md:rounded-b-none ${
-                    isActive
-                      ? 'bg-blue-50 text-blue-600 md:bg-transparent md:border-b-2 md:border-blue-600'
-                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                  }`}
-                >
-                  {tool}
-                </button>
-              );
-            })}
-          </div>
-        );
-      };
-
-      // --- From components/Header.tsx ---
-      const Header = () => {
-        return (
-          <header className="text-center">
-            <h1 className="text-5xl font-bold text-blue-600">
-              CRE Tool Hub
-            </h1>
-            <p className="mt-2 text-sm text-gray-500">
-              Fast CRE calculators — client-side, no storage.
-            </p>
-          </header>
-        );
-      };
-      
-      // --- From App.tsx ---
-      const App = () => {
-        const [activeTool, setActiveTool] = useState(Tool.CapRate);
-        const [initialParams, setInitialParams] = useState(null);
-        
-        useEffect(() => {
-            const params = new URLSearchParams(window.location.search);
-            const tool = params.get('tool');
-            if (tool) {
-                let targetTool = Tool.CapRate;
-                switch(tool) {
-                    case 'noi': targetTool = Tool.NOI; break;
-                    case 'coc': targetTool = Tool.CoC; break;
-                    case 'dscr': targetTool = Tool.DSCR; break;
-                    case 'caprate':
-                    default:
-                        targetTool = Tool.CapRate; break;
-                }
-                setActiveTool(targetTool);
-                setInitialParams(params);
-            }
-        }, []);
-
-        const toolTitles = {
-          [Tool.CapRate]: 'Cap Rate Calculator — Instant',
-          [Tool.NOI]: 'NOI Builder',
-          [Tool.CoC]: 'Cash-on-Cash Return Calculator',
-          [Tool.DSCR]: 'DSCR Calculator',
-        };
-
-        const renderTool = () => {
-          switch (activeTool) {
-            case Tool.CapRate:
-              return <CapRateCalculator 
-                setActiveTool={setActiveTool} 
-                initialNoi={initialParams?.get('noi')}
-                initialPrice={initialParams?.get('price')}
-              />;
-            case Tool.NOI:
-              return <NoiBuilder 
-                initialGrossRent={initialParams?.get('rent')}
-                initialVacancy={initialParams?.get('vacancy')}
-                initialOtherIncome={initialParams?.get('other')}
-                initialOpEx={initialParams?.get('opex')}
-              />;
-            case Tool.CoC:
-              return <CashOnCashCalculator 
-                initialCashFlow={initialParams?.get('flow')}
-                initialCashInvested={initialParams?.get('invested')}
-              />;
-            case Tool.DSCR:
-              return <DscrCalculator 
-                initialNoi={initialParams?.get('noi')}
-                initialDebtService={initialParams?.get('debt')}
-              />;
-            default:
-              return <CapRateCalculator setActiveTool={setActiveTool} />;
-          }
-        };
-
-        return (
-          <div className="bg-white text-gray-800 min-h-screen">
-            <div className="max-w-[900px] mx-auto px-5 py-4 md:py-8">
-              <Header />
-              <main className="mt-8 md:mt-12">
-                <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
-                  {toolTitles[activeTool]}
-                </h1>
-                <div className="mt-6">
-                  <TabSelector activeTool={activeTool} setActiveTool={setActiveTool} />
-                </div>
-                <div className="mt-4">
-                  {renderTool()}
-                </div>
-                <div className="mt-8 space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <AffiliateCard
-                      title="Compare Lenders"
-                      description="Find the best financing options."
-                      cta="Compare lenders"
-                    />
-                    <AffiliateCard
-                      title="AI Valuation Tool"
-                      description="Get instant property valuations."
-                      cta="Try valuation tool"
-                    />
-                    <AffiliateCard
-                      title="Property Management Suite"
-                      description="Streamline your operations."
-                      cta="Free trial"
-                    />
+                      </div>
+                    ))}
                   </div>
-                  <AdPlaceholder />
                 </div>
-                <div className="mt-6 text-center text-xs text-gray-400">
-                  <p>Not financial advice. Estimates only.</p>
+              </div>
+
+              {/* Features Section */}
+              <div className="bg-gray-50">
+                <div className="max-w-6xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8">
+                  <div className="max-w-3xl mx-auto text-center">
+                    <h2 className="text-3xl font-extrabold text-gray-900">Why Use CRE Tool Hub?</h2>
+                    <p className="mt-4 text-lg text-gray-500">Simple, powerful, and private tools for the modern investor.</p>
+                  </div>
+                  <dl className="mt-12 space-y-10 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:gap-y-12 lg:grid-cols-4 lg:gap-x-8">
+                    {features.map((feature, index) => (
+                      <div key={index} className="flex">
+                        <svg className="flex-shrink-0 h-6 w-6 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <div className="ml-3">
+                          <dt className="text-lg leading-6 font-medium text-gray-900">Feature {index + 1}</dt>
+                          <dd className="mt-2 text-base text-gray-500">{feature}</dd>
+                        </div>
+                      </div>
+                    ))}
+                  </dl>
                 </div>
-                <hr className="my-10 border-gray-200" />
-                <SeoFaqContent />
-              </main>
-            </div>
+              </div>
+            </main>
+
+            <Footer />
           </div>
         );
       };
-      
-      // --- From index.tsx ---
-      const rootElement = document.getElementById('root');
-      const root = ReactDOM.createRoot(rootElement);
-      root.render(<App />);
 
+      const root = ReactDOM.createRoot(document.getElementById('root'));
+      root.render(<HomePage />);
     </script>
 </body>
 </html>
