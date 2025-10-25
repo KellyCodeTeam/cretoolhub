@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -60,27 +61,28 @@
         ];
 
         const linkClasses = (page) => 
-            `px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+            `px-3 py-2 rounded-md text-base font-medium transition-colors ${
                 activePage === page ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100'
             }`;
 
         return (
             <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-200">
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex items-center justify-between h-16">
-                        <div className="flex items-center">
-                            <div className="flex-shrink-0">
-                                <a href="index.html" className="text-xl font-bold text-blue-600">CRE Tool Hub</a>
-                            </div>
-                            <p className="ml-4 text-xs text-gray-500 hidden md:block">Free CRE calculators — client-side, no storage.</p>
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    {/* Desktop Header */}
+                    <div className="hidden md:flex items-center justify-between h-20">
+                        <div className="flex-1 flex justify-start">
+                             <p className="text-sm text-gray-600">Free CRE calculators — client-side, no storage.</p>
                         </div>
-                        <div className="hidden md:block">
-                            <div className="ml-10 flex items-baseline space-x-4">
+                        <div className="flex-shrink-0 px-4">
+                            <a href="index.html" className="text-3xl font-bold text-blue-600">CRE Tool Hub</a>
+                        </div>
+                        <div className="flex-1 flex justify-end">
+                            <nav className="flex items-center space-x-1">
                                 <a href="index.html" className={linkClasses('Home')}>Home</a>
                                 <div className="relative group">
                                     <a href="cap-rate-calculator.html" className={`${linkClasses('Calculators')} flex items-center`}>
                                         Calculators
-                                        <svg className="ml-1 h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                        <svg className="ml-1 h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                           <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
                                         </svg>
                                     </a>
@@ -93,9 +95,16 @@
                                     </div>
                                 </div>
                                 {navLinks.slice(1).map(link => <a key={link.name} href={link.href} className={linkClasses(link.name)}>{link.name}</a>)}
-                            </div>
+                            </nav>
                         </div>
-                        <div className="-mr-2 flex md:hidden">
+                    </div>
+                    
+                    {/* Mobile Header */}
+                    <div className="md:hidden flex items-center justify-between h-16">
+                        <div className="flex-shrink-0">
+                            <a href="index.html" className="text-2xl font-bold text-blue-600">CRE Tool Hub</a>
+                        </div>
+                        <div className="-mr-2 flex">
                             <button onClick={() => setIsMenuOpen(!isMenuOpen)} type="button" className="bg-gray-100 inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" aria-controls="mobile-menu" aria-expanded="false">
                                 <span className="sr-only">Open main menu</span>
                                 {!isMenuOpen ? (
@@ -129,7 +138,7 @@
 
       const Footer = () => (
         <footer className="bg-gray-50 border-t border-gray-200">
-            <div className="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center text-gray-500">
+            <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center text-gray-500">
                 <p className="text-xs max-w-3xl mx-auto">
                     <strong>Disclaimer:</strong> CRE Tool Hub provides educational calculators for informational purposes only. This is not financial, investment, or legal advice. Consult qualified professionals before making investment decisions.
                 </p>
@@ -191,7 +200,7 @@
             <main>
               {/* Hero Section */}
               <div className="bg-gray-50">
-                <div className="max-w-6xl mx-auto py-16 px-4 sm:py-24 sm:px-6 lg:px-8 text-center">
+                <div className="max-w-7xl mx-auto py-16 px-4 sm:py-24 sm:px-6 lg:px-8 text-center">
                   <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl md:text-6xl">
                     <span className="block">Professional Commercial</span>
                     <span className="block text-blue-600">Real Estate Calculators</span>
@@ -204,7 +213,7 @@
 
               {/* Calculator Grid */}
               <div className="py-12 bg-white">
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                   <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
                     {calculators.map(calc => (
                       <div key={calc.name} className="pt-6">
@@ -262,7 +271,7 @@
 
               {/* Features Section */}
               <div className="bg-white">
-                <div className="max-w-6xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8">
+                <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8">
                   <div className="max-w-3xl mx-auto text-center">
                     <h2 className="text-3xl font-extrabold text-gray-900">Why Use CRE Tool Hub?</h2>
                     <p className="mt-4 text-lg text-gray-500">Simple, powerful, and private tools for the modern investor.</p>
